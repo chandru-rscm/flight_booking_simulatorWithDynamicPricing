@@ -1,69 +1,44 @@
 # models.py
-from pydantic import BaseModel, Field
-from typing import Optional, List
+# Pydantic models for the Flight Booking Simulator
+
+from pydantic import BaseModel
+from typing import Optional
 
 
-class Flight(BaseModel):
+class Passenger(BaseModel):
+    first_name: str
+    last_name: str
+    age: int
+    phone: int
+
+
+class BookingRequest(BaseModel):
+    flight_id: str
+    passenger: Passenger
+    travel_date: str
+    seat_no: Optional[str] = "Any"
+
+
+class FlightSchema(BaseModel):
+    flight_id: str
+    airline_name: str
+    origin: str
+    destination: str
+    arrival_time: str
+    departure_time: str
+    base_fare: int
+    total_seats: int
+
+
+class FlightOut(BaseModel):
     id: int
     flight_no: str
     origin: str
     destination: str
-    departure_date: str
-    departure_time: str
-    arrival_time: str
-    duration_minutes: int
-    base_price: float
-    seats_total: int
+    departure: str
+    arrival: str
+    base_fare: float
+    total_seats: int
     seats_available: int
-    airline: str
-
-    # From Module 2 – dynamic pricing
-    dynamic_price: Optional[float] = None
-
-
-class FlightSearchQuery(BaseModel):
-    origin: str = Field(..., min_length=3, max_length=3)
-    destination: str = Field(..., min_length=3, max_length=3)
-    departure_date: str = Field(
-        ...,
-        pattern=r"^\d{4}-\d{2}-\d{2}$",
-    )
-
-
-class FlightSearchFilters(BaseModel):
-    sort_by: Optional[str] = Field(
-        default=None,
-        description="Optional sorting key: 'price' or 'duration'"
-    )
-
-
-# -----------------------------
-# Booking models (Module 3)
-# -----------------------------
-
-class BookingCreate(BaseModel):
-    """
-    Request body for creating a new booking.
-    This is equivalent to a Django Form/Serializer for booking input.
-    """
-    flight_id: int
-    passenger_name: str
-    passenger_email: str
-    passenger_phone: str
-    seat_number: Optional[str] = None
-
-
-class Booking(BaseModel):
-    """
-    Response model representing a booking stored in the database.
-    """
-    id: int
-    pnr: str
-    flight_id: int
-    passenger_name: str
-    passenger_email: str
-    passenger_phone: str
-    seat_number: Optional[str]
-    status: str
-    price_paid: float
-    booked_at: str
+    airline_name: str
+    duration_minutes: int

@@ -1,68 +1,70 @@
 # data_seed.py
-"""
-Simulated external airline API data feed.
-Used by:
-    POST /external/sync
-This provides mock flight schedules that get inserted into the database
-ONLY if the same flight_no + departure_date does not already exist.
-"""
+# SQLite database connection + initial seeding for flights
 
-def get_external_airline_data():
-    """
-    Returns a list of external flights in dict format.
-    These mimic real external airline schedule APIs.
-    """
-    return [
-        {
-            "flight_no": "AI-550",
-            "origin": "DEL",
-            "destination": "MAA",
-            "departure_date": "2025-12-02",
-            "departure_time": "06:00",
-            "arrival_time": "08:45",
-            "duration_minutes": 165,
-            "base_price": 6200.0,
-            "seats_total": 180,
-            "seats_available": 100,
-            "airline": "Air India"
-        },
-        {
-            "flight_no": "6E-777",
-            "origin": "BLR",
-            "destination": "DEL",
-            "departure_date": "2025-12-02",
-            "departure_time": "09:30",
-            "arrival_time": "12:10",
-            "duration_minutes": 160,
-            "base_price": 5400.0,
-            "seats_total": 180,
-            "seats_available": 120,
-            "airline": "IndiGo"
-        },
-        {
-            "flight_no": "SG-909",
-            "origin": "MUM",
-            "destination": "COK",
-            "departure_date": "2025-12-03",
-            "departure_time": "14:20",
-            "arrival_time": "16:10",
-            "duration_minutes": 110,
-            "base_price": 4800.0,
-            "seats_total": 160,
-            "seats_available": 90,
-            "airline": "SpiceJet"
-        },
-        {
-            "flight_no": "UK-888",
-            "origin": "DEL",
-            "destination": "GOI",
-            "departure_date": "2025-12-04",
-            "departure_time": "07:40",
-            "arrival_time": "10:00",
-            "duration_minutes": 140,
-            "base_price": 5900.0,
-            "seats_total": 170,
-            "seats_available": 140,
-            "airline": "Vistara"
-        }
-    ]
+import sqlite3
+from pathlib import Path
+
+DB_PATH = Path(__file__).parent / "flights.db"
+
+
+def get_db_connection():
+    """Create a new SQLite connection."""
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row  # rows behave like Python dicts
+    return conn
+
+
+def init_db_if_needed():
+    """Create DB and insert sample flights if DB is empty."""
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    # Table creation
+    cur.execute(
+        """
+        CREATE TABLE IF NOT EXISTS flights (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            flight_no      TEXT NOT NULL,
+            origin         TEXT NOT NULL,
+            destination    TEXT NOT NULL,
+            departure      TEXT NOT NULL,
+            arrival        TEXT NOT NULL,
+            base_fare      REAL NOT NULL,
+            total_seats    INTEGER NOT NULL,
+            seats_available INTEGER NOT NULL,
+            airline_name   TEXT NOT NULL
+        );
+        """
+    )
+
+    # Check existing data
+    cur.execute("SELECT COUNT(*) FROM flights;")
+    count = cur.fetchone()[0]
+
+    # If empty, insert sample flights
+    if count == 0:
+        sample_flights = [
+            ("AI1", "Delhi",   "Mumbai",  "2025-03-01 10:00:00", "2025-03-01 12:00:00", 8000.00, 200, 150, "Air India"),
+            ("AI2", "Mumbai",  "Delhi",   "2025-03-01 15:00:00", "2025-03-01 17:00:00", 8000.00, 200, 200, "Air India"),
+            ("AI3", "Delhi",   "Chennai", "2025-03-01 09:00:00", "2025-03-01 11:30:00", 9000.00, 200, 180, "IndiGo"),
+            ("AI4", "Chennai", "Delhi",   "2025-03-01 13:00:00", "2025-03-01 15:30:00", 9000.00, 200, 200, "IndiGo"),
+            ("AI5", "Mumbai",  "Chennai", "2025-03-01 12:00:00", "2025-03-01 14:30:00", 6000.00, 200, 160, "SpiceJet"),
+            ("AI6", "Chennai", "Mumbai",  "2025-03-01 16:00:00", "2025-03-01 18:30:00", 7000.00, 200, 200, "SpiceJet"),
+        ]
+        cur.executemany(
+            """
+            INSERT INTO flights (
+                flight_no, origin, destination, departure, arrival,
+                base_fare, total_seats, seats_available, airline_name
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
+            """,
+            sample_flights,
+        )
+
+    conn.commit()
+    conn.close()
+
+
+if __name__ == "__main__":
+    init_db_if_needed()
+    print("Database initialized with sample flights.")
