@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Search Flights</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+
+<body>
+
+<div class="container">
+    <h2>Search Flights</h2>
+
+    <form id="searchForm">
+        <input type="text" id="origin" placeholder="Origin (DEL)" required>
+        <input type="text" id="destination" placeholder="Destination (MUM)" required>
+        <input type="date" id="date" required>
+        <button type="submit" class="button">Search</button>
+    </form>
+
+    <h3>Results:</h3>
+    <div id="results"></div>
+</div>
+
+<script src="/static/script.js"></script>
+
+</body>
+</html>
