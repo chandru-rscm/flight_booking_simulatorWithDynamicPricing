@@ -1,16 +1,17 @@
 # flight_booking/models.py
+
 from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
-from .db import Base   
-
+from datetime import datetime
+from .db import Base
 
 
 class Airline(Base):
     __tablename__ = "airlines"
 
     id = Column(Integer, primary_key=True, index=True)
-    code = Column(String, unique=True, index=True)   
-    name = Column(String)                           
+    code = Column(String, unique=True, index=True)
+    name = Column(String)
 
     flights = relationship("Flight", back_populates="airline")
 
@@ -19,9 +20,9 @@ class Airport(Base):
     __tablename__ = "airports"
 
     id = Column(Integer, primary_key=True, index=True)
-    code = Column(String, unique=True, index=True)   
-    city = Column(String)                            
-    name = Column(String)                           
+    code = Column(String, unique=True, index=True)
+    city = Column(String)
+    name = Column(String)
 
     origin_flights = relationship(
         "Flight",
@@ -39,7 +40,7 @@ class Flight(Base):
     __tablename__ = "flights"
 
     id = Column(Integer, primary_key=True, index=True)
-    flight_number = Column(String, index=True)       
+    flight_number = Column(String, index=True)
 
     airline_id = Column(Integer, ForeignKey("airlines.id"))
     origin_airport_id = Column(Integer, ForeignKey("airports.id"))
@@ -52,18 +53,29 @@ class Flight(Base):
     total_seats = Column(Integer)
     available_seats = Column(Integer)
 
-   
-    # 1 = low, 2 = medium, 3 = high
     demand_level = Column(Integer, default=1)
 
     airline = relationship("Airline", back_populates="flights")
-    origin_airport = relationship(
-        "Airport",
-        foreign_keys=[origin_airport_id],
-        back_populates="origin_flights"
-    )
-    destination_airport = relationship(
-        "Airport",
-        foreign_keys=[destination_airport_id],
-        back_populates="destination_flights"
-    )
+    origin_airport = relationship("Airport", foreign_keys=[origin_airport_id], back_populates="origin_flights")
+    destination_airport = relationship("Airport", foreign_keys=[destination_airport_id], back_populates="destination_flights")
+
+    bookings = relationship("Booking", back_populates="flight")
+
+
+class Booking(Base):
+    __tablename__ = "bookings"
+
+    id = Column(Integer, primary_key=True, index=True)
+
+    flight_id = Column(Integer, ForeignKey("flights.id"))
+    passenger_name = Column(String)
+    seat_no = Column(String)
+
+    pnr = Column(String, unique=True, index=True)
+
+    price = Column(Float)
+    status = Column(String, default="Pending")
+
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    flight = relationship("Flight", back_populates="bookings")

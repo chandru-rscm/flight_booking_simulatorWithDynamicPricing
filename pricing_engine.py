@@ -1,57 +1,24 @@
-# flight_booking/pricing_engine.py
 from datetime import datetime
+import random
 
+def calculate_dynamic_price(base_price, available_seats, total_seats, departure_datetime, demand_level):
+    # Seat availability factor
+    seat_factor = 1 - (available_seats / total_seats)
 
-def calculate_dynamic_price(
-    base_price: float,
-    total_seats: int,
-    available_seats: int,
-    departure_datetime,
-    demand_level: int
-) -> float:
-    """
-    Dynamic pricing logic:
-    - Remaining seat percentage
-    - Time to departure
-    - Demand level (1=low, 2=medium, 3=high)
-    """
+    # Time factor
+    days_left = (departure_datetime - datetime.now()).days
+    if days_left < 0:
+        days_left = 0
 
-    price = base_price
+    time_factor = 0.02 * max(0, (10 - days_left))  # increase price when trip is soon
 
-    # --- Seat availability factor ---
-    if total_seats > 0:
-        remaining_percent = available_seats / total_seats
-    else:
-        remaining_percent = 0
+    # Demand factor
+    demand_multiplier = {1: 0.0, 2: 0.10, 3: 0.20}
+    demand_factor = demand_multiplier.get(demand_level, 0)
 
-    # If < 20% seats left → +20%
-    if remaining_percent < 0.2:
-        price *= 1.20
-    # Else if < 50% seats left → +10%
-    elif remaining_percent < 0.5:
-        price *= 1.10
+    # Random variation
+    random_factor = random.uniform(0.0, 0.05)
 
-    # --- Time to departure factor ---
-    now = datetime.now()
-    diff = departure_datetime - now
-    days_to_departure = diff.days
+    dynamic_price = base_price * (1 + seat_factor + time_factor + demand_factor + random_factor)
 
-    # If flight is within 1 day → +25%
-    if days_to_departure <= 1:
-        price *= 1.25
-    # If within 3 days → +15%
-    elif days_to_departure <= 3:
-        price *= 1.15
-    # If within 7 days → +5%
-    elif days_to_departure <= 7:
-        price *= 1.05
-
-    # --- Demand level factor ---
-    # demand_level: 1 = low, 2 = medium, 3 = high
-    if demand_level == 2:
-        price *= 1.10   # +10%
-    elif demand_level == 3:
-        price *= 1.25   # +25%
-
-    # Round to nearest paisa
-    return round(price, 2)
+    return round(dynamic_price, 2)

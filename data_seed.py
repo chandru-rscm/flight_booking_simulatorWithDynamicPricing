@@ -1,93 +1,91 @@
-# flight_booking/data_seed.py
+from sqlalchemy.orm import Session
+from .db import SessionLocal, engine
+from .models import Airline, Airport, Flight, Base
 from datetime import datetime, timedelta
+import random
 
-from .db import Base, engine, SessionLocal
-from .models import Airline, Airport, Flight
+Base.metadata.create_all(bind=engine)
 
+def seed_data():
+    db: Session = SessionLocal()
 
+    # ============================
+    # 1. Seed Airlines
+    # ============================
+    airlines = [
+        Airline(code="AI", name="Air India"),
+        Airline(code="6E", name="IndiGo"),
+        Airline(code="SG", name="SpiceJet"),
+    ]
 
-def seed():
-    # Create tables
-    Base.metadata.create_all(bind=engine)
+    for a in airlines:
+        existing = db.query(Airline).filter(Airline.code == a.code).first()
+        if not existing:
+            db.add(a)
 
-    db = SessionLocal()
-    try:
-        # Avoid double seeding
-        if db.query(Flight).first():
-            print("Database already has data. Skipping seeding.")
-            return
+    # ============================
+    # 2. Seed Airports
+    # ============================
+    airports = [
+        Airport(code="MAA", city="Chennai", name="Chennai International Airport"),
+        Airport(code="DEL", city="Delhi", name="Indira Gandhi International Airport"),
+        Airport(code="BOM", city="Mumbai", name="Chhatrapati Shivaji Airport"),
+    ]
 
-        # --- Airlines ---
-        ai = Airline(code="AI", name="Air India")
-        indigo = Airline(code="6E", name="IndiGo")
-        spice = Airline(code="SG", name="SpiceJet")
+    for ap in airports:
+        existing = db.query(Airport).filter(Airport.code == ap.code).first()
+        if not existing:
+            db.add(ap)
 
-        db.add_all([ai, indigo, spice])
+    db.commit()
 
-        # --- Airports ---
-        maa = Airport(code="MAA", city="Chennai", name="Chennai International Airport")
-        delhi = Airport(code="DEL", city="Delhi", name="Indira Gandhi International Airport")
-        bom = Airport(code="BOM", city="Mumbai", name="Chhatrapati Shivaji Maharaj International Airport")
-        blr = Airport(code="BLR", city="Bengaluru", name="Kempegowda International Airport")
+    # Refresh IDs
+    airlines = db.query(Airline).all()
+    airports = db.query(Airport).all()
 
-        db.add_all([maa, delhi, bom, blr])
-        db.flush()  # assign IDs for relations
+    # Airport lookup helper
+    airport_dict = {a.code: a.id for a in airports}
 
-        flights = []
-        now = datetime.now()
+    # ============================
+    # 3. Seed Flights
+    # ============================
+    flight_list = [
+        ("AI101", "AI", "MAA", "DEL"),
+        ("AI202", "AI", "DEL", "BOM"),
+        ("6E303", "6E", "BOM", "DEL"),
+        ("6E404", "6E", "DEL", "MAA"),
+        ("SG505", "SG", "MAA", "BOM"),
+    ]
 
-        # Create flights for next 5 days
-        for day in range(1, 6):
-            dep_date = now + timedelta(days=day)
+    for f_no, airline_code, origin, dest in flight_list:
+        airline = db.query(Airline).filter(Airline.code == airline_code).first()
 
-            # MAA -> DEL (Air India)
-            flights.append(Flight(
-                flight_number=f"AI-10{day}",
-                airline=ai,
-                origin_airport=maa,
-                destination_airport=delhi,
-                departure_datetime=dep_date.replace(hour=8, minute=0, second=0, microsecond=0),
-                arrival_datetime=dep_date.replace(hour=10, minute=30, second=0, microsecond=0),
-                base_price=4500 + 100 * day,
-                total_seats=180,
-                available_seats=180,
-                demand_level=1
-            ))
+        exists = db.query(Flight).filter(Flight.flight_number == f_no).first()
+        if exists:
+            continue
 
-            # DEL -> BOM (IndiGo)
-            flights.append(Flight(
-                flight_number=f"6E-20{day}",
-                airline=indigo,
-                origin_airport=delhi,
-                destination_airport=bom,
-                departure_datetime=dep_date.replace(hour=12, minute=0),
-                arrival_datetime=dep_date.replace(hour=14, minute=0),
-                base_price=3500 + 150 * day,
-                total_seats=180,
-                available_seats=180,
-                demand_level=2
-            ))
+        departure = datetime.now() + timedelta(days=random.randint(1, 10))
+        arrival = departure + timedelta(hours=2)
 
-            # BLR -> MAA (SpiceJet)
-            flights.append(Flight(
-                flight_number=f"SG-30{day}",
-                airline=spice,
-                origin_airport=blr,
-                destination_airport=maa,
-                departure_datetime=dep_date.replace(hour=16, minute=0),
-                arrival_datetime=dep_date.replace(hour=18, minute=0),
-                base_price=3200 + 120 * day,
-                total_seats=160,
-                available_seats=160,
-                demand_level=3
-            ))
+        flight = Flight(
+            flight_number=f_no,
+            airline_id=airline.id,
+            origin_airport_id=airport_dict[origin],
+            destination_airport_id=airport_dict[dest],
+            departure_datetime=departure,
+            arrival_datetime=arrival,
+            base_price=random.randint(3000, 9000),
+            total_seats=120,
+            available_seats=120,
+            demand_level=random.randint(1, 3)
+        )
+        db.add(flight)
 
-        db.add_all(flights)
-        db.commit()
-        print("Seeding completed successfully.")
-    finally:
-        db.close()
+    db.commit()
+    db.close()
+
+    print("Database seeded successfully!")
 
 
 if __name__ == "__main__":
-    seed()
+    seed_data()
