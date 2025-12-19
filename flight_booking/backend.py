@@ -2,10 +2,11 @@
 
 from fastapi import FastAPI, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
+from .data_seed import seed_data
 import random
 
-from .db import get_db
-from .models import Flight, Booking
+from .db import get_db, engine
+from .models import Flight, Booking, Base
 from .pricing_engine import calculate_dynamic_price
 from .schemas import BookingRequest
 
@@ -13,6 +14,13 @@ app = FastAPI(
     title="Flight Booking Simulator with Dynamic Pricing",
     description="Infosys Internship Project | Milestone 3",
 )
+
+Base.metadata.create_all(bind=engine)
+
+@app.on_event("startup")
+def startup_event():
+    Base.metadata.create_all(bind=engine)
+    seed_data()
 
 
 
