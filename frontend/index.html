@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to SkyBook ✈️</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* LANDING PAGE SPECIFIC STYLES */
+        body { overflow-x: hidden; }
+
+       .hero-section {
+            min-height: 80vh; /* Allows it to grow if needed */
+            padding-top: 50px; /* Adds breathing room at top */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: relative;
+            z-index: 10;
+        }
+        .hero-content h1 {
+            font-size: 60px;
+            margin-bottom: 20px;
+            background: linear-gradient(to right, #333, #ff4d88);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+        }
+
+        .hero-content p {
+            font-size: 20px;
+            color: #666;
+            margin-bottom: 40px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .cta-buttons { display: flex; gap: 20px; justify-content: center; }
+
+        .btn-large {
+            padding: 15px 40px;
+            border-radius: 30px;
+            font-size: 18px;
+            font-weight: bold;
+            text-decoration: none;
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: #ff4d88;
+            color: white;
+            box-shadow: 0 10px 25px rgba(255, 77, 136, 0.4);
+            border: none;
+        }
+        .btn-secondary {
+            background: white;
+            color: #333;
+            border: 1px solid #ddd;
+        }
+
+        .btn-large:hover { transform: translateY(-5px); }
+
+        /* FEATURE CARDS */
+        .features-container {
+            max-width: 1000px;
+            margin: 40px auto 50px auto; /* Changed to POSITIVE 40px to push it down */
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            position: relative;
+            z-index: 20;
+            padding: 0 20px;
+        }
+        .feature-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            text-align: center;
+            border-bottom: 4px solid #ff4d88;
+            transition: transform 0.3s;
+        }
+        .feature-card:hover { transform: translateY(-10px); }
+        .feature-icon { font-size: 40px; margin-bottom: 15px; display: block; }
+
+        .admin-link {
+            position: fixed; bottom: 20px; right: 20px;
+            font-size: 12px; color: #ccc; text-decoration: none;
+        }
+        .admin-link:hover { color: #333; }
+    </style>
+</head>
+<body>
+
+    <div class="navbar">
+        <h2>SkyBook ✈️</h2>
+        </div>
+
+    <div class="plane-container"><div class="plane-icon">✈️</div></div>
+    <div class="cloud one"></div>
+    <div class="cloud two"></div>
+
+    <div class="hero-section">
+        <div class="hero-content">
+            <h1>Fly Anywhere.</h1>
+            <p>Experience real-time dynamic pricing with our advanced flight booking simulator.</p>
+            
+            <div class="cta-buttons">
+                <a href="login.html" class="btn-large btn-primary">Login</a>
+                <a href="search.html" class="btn-large btn-secondary">Guest Mode</a>
+            </div>
+            
+            <p style="margin-top: 30px; font-size: 12px; color: #999;">
+                Infosys Internship Project
+            </p>
+        </div>
+    </div>
+
+    <div class="features-container">
+        <div class="feature-card">
+            <span class="feature-icon">💎</span>
+            <h3>Dynamic Pricing</h3>
+            <p style="color:#777; font-size:14px;">Smart algorithms that adjust fares based on real-time demand.</p>
+        </div>
+        <div class="feature-card">
+            <span class="feature-icon">🛡️</span>
+            <h3>Secure Booking</h3>
+            <p style="color:#777; font-size:14px;">Enterprise-grade security for your personal data.</p>
+        </div>
+        <div class="feature-card">
+            <span class="feature-icon">⚡</span>
+            <h3>Instant Boarding Pass</h3>
+            <p style="color:#777; font-size:14px;">Get your PDF ticket instantly after payment.</p>
+        </div>
+    </div>
+
+    <a href="admin.html" class="admin-link">Admin Login 🔐</a>
+
+</body>
+</html>

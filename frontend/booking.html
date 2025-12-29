@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Seats | SkyBook</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* Layout Fixes */
+        .booking-layout {
+            height: auto;
+            min-height: 85vh;
+            padding-top: 100px;
+            padding-bottom: 60px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+        }
+
+        /* --- VISUAL SEAT MAP STYLES --- */
+        .seat-map-container {
+            background: #fff;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .plane-fuselage {
+            display: inline-block;
+            background: #f3f4f6;
+            padding: 30px 20px;
+            border-radius: 40px 40px 10px 10px;
+            border: 2px solid #e5e7eb;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .cockpit {
+            height: 40px;
+            width: 80%;
+            background: #cbd5e1;
+            margin: 0 auto 30px auto;
+            border-radius: 50% 50% 0 0;
+            opacity: 0.5;
+        }
+
+        /* DYNAMIC GRID: Can change between 3-3 and 2-2 */
+        .seats-grid {
+            display: grid;
+            gap: 8px;
+            align-items: center;
+            /* Default Economy Layout (3 - Spacer - 3) */
+            grid-template-columns: repeat(3, 1fr) 30px repeat(3, 1fr);
+        }
+
+        /* Individual Seat */
+        .seat {
+            width: 35px;
+            height: 40px;
+            background: #e0e7ff; /* Economy Blue */
+            border-radius: 8px 8px 12px 12px;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s;
+            font-size: 10px;
+            color: #555;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            border: 1px solid #c7d2fe;
+        }
+
+        .seat:hover { background: #818cf8; color: white; transform: scale(1.1); }
+
+        /* Business Class Seat Styling */
+        .seat.business {
+            background: #fef3c7; /* Gold */
+            border-color: #f59e0b;
+            color: #b45309;
+            width: 50px; /* Wider */
+            height: 50px; /* Bigger */
+        }
+        .seat.business:hover { background: #f59e0b; color: white; }
+
+        /* Seat States */
+        .seat.selected {
+            background: #ff4d88 !important;
+            color: white !important;
+            border-color: #ff4d88 !important;
+            box-shadow: 0 0 10px rgba(255, 77, 136, 0.4);
+            transform: scale(1.1);
+        }
+
+        .seat.occupied {
+            background: #e5e7eb !important;
+            color: #bbb !important;
+            cursor: not-allowed;
+            border-color: #d1d5db !important;
+        }
+        .seat.occupied:hover { transform: none; }
+
+        /* The Aisle */
+        .aisle-spacer { grid-column: auto; } /* Let JS handle column placement */
+
+        /* Legend */
+        .legend { display: flex; justify-content: center; gap: 15px; margin-top: 15px; font-size: 12px; color: #666; }
+        .dot { width: 12px; height: 12px; display: inline-block; border-radius: 3px; margin-right: 5px; }
+        .dot-avail { background: #e0e7ff; border: 1px solid #c7d2fe; }
+        .dot-biz { background: #fef3c7; border: 1px solid #f59e0b; }
+        .dot-select { background: #ff4d88; }
+
+        /* --- TOGGLE SWITCH CSS --- */
+        .class-toggle-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            background: #f3f4f6;
+            padding: 5px;
+            border-radius: 30px;
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .class-option {
+            padding: 8px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.3s;
+        }
+
+        .class-option.active {
+            background: #fff;
+            color: #333;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .class-option.active.biz-active {
+            background: #fef3c7;
+            color: #b45309;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="navbar">
+        <h2>SkyBook ✈️</h2>
+        <a href="search.html">Back to Search</a>
+    </div>
+
+    <div class="plane-container"><div class="plane-icon">✈️</div></div>
+    <div class="cloud one"></div>
+    <div class="cloud two"></div>
+
+    <div class="hero-section booking-layout">
+        <div class="hero-content" style="max-width: 900px; width: 95%; display: flex; gap: 30px; flex-wrap: wrap; justify-content: center; align-items: flex-start;">
+            
+            <div style="flex: 1; min-width: 300px;">
+                <h2 style="text-align: center; color: #333; margin-bottom: 15px;">Choose Your Seat</h2>
+                
+                <div class="class-toggle-container">
+                    <div id="btnEconomy" class="class-option active" onclick="toggleClass('economy')">Economy</div>
+                    <div id="btnBusiness" class="class-option" onclick="toggleClass('business')">Business</div>
+                </div>
+
+                <div class="seat-map-container">
+                    <div class="plane-fuselage">
+                        <div class="cockpit"></div>
+                        <div class="seats-grid" id="seatsGrid">
+                            </div>
+                    </div>
+                    
+                    <div class="legend">
+                        <div><span class="dot dot-avail"></span>Economy</div>
+                        <div><span class="dot dot-biz"></span>Business</div>
+                        <div><span class="dot dot-select"></span>Selected</div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="flex: 1; min-width: 300px; max-width: 400px;">
+                <div class="glass-card" style="background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.08);">
+                    <h3 style="margin-bottom: 20px; color: #ff4d88;">Flight Summary</h3>
+
+                    <div id="weatherWidget" style="background: #e0f2fe; color: #0369a1; padding: 10px; border-radius: 8px; font-size: 13px; margin-bottom: 15px; display: none; align-items: center; gap: 10px;">
+                        <span id="weatherIcon" style="font-size: 20px;">🌤️</span>
+                        <div>
+                            <strong id="weatherCity">City</strong>
+                            <span id="weatherTemp">--°C</span> • <span id="weatherDesc">Loading...</span>
+                        </div>
+                    </div>
+
+                    <div id="flightInfo" style="margin-bottom: 20px;">Loading...</div>
+
+                    <input type="hidden" id="selectedSeatVal">
+
+                    <div style="background: #f9fafb; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+                        <div style="display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 5px;">
+                            <span style="color:#666;">Class:</span>
+                            <span id="displayClass" style="font-weight: bold; color: #333;">Economy</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 5px;">
+                            <span style="color:#666;">Seat Selected:</span>
+                            <span id="displaySeat" style="font-weight: bold; color: #333;">--</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; font-size: 14px;">
+                            <span style="color:#666;">Surcharge:</span>
+                            <span id="displaySurcharge" style="font-weight: bold; color: green;">₹0</span>
+                        </div>
+                    </div>
+
+                    <label style="font-weight: 600; color: #555; font-size: 13px;">Passenger Name</label>
+                    <input type="text" id="passengerName" placeholder="Name on ID" style="width: 100%; padding: 12px; margin: 5px 0 20px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box;">
+
+                    <button id="confirmBooking" class="primary-btn" style="width: 100%;" disabled>
+                        Select a Seat first
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="js/booking.js"></script>
+</body>
+</html>

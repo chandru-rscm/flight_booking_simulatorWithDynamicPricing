@@ -1,0 +1,296 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap');
+
+body {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+    color: #333;
+    overflow-x: hidden;
+}
+
+/* ============================
+   Navbar
+   ============================ */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 50px;
+    background: white;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+    position: relative;
+    z-index: 10;
+}
+
+.navbar h2 {
+    margin: 0;
+    font-size: 24px;
+    color: #ff4d88;
+    font-weight: 800;
+}
+
+.navbar a {
+    text-decoration: none;
+    color: #555;
+    font-weight: 600;
+}
+
+/* ============================
+   Container & Hero
+   ============================ */
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.hero-section {
+    height: 85vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.hero-content {
+    background: rgba(255, 255, 255, 0.9);
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.08);
+    backdrop-filter: blur(10px);
+    z-index: 2;
+    width: 100%;
+    max-width: 800px;
+}
+
+.hero-title {
+    font-size: 36px;
+    font-weight: 800;
+    margin: 0 0 10px 0;
+    color: #ff4d88;
+}
+
+.hero-subtitle {
+    font-size: 16px;
+    color: #666;
+    margin-bottom: 30px;
+}
+
+/* ============================
+   Inputs & Buttons
+   ============================ */
+/* Modern Inputs & Selects */
+input[type="text"], 
+input[type="email"], 
+input[type="password"],
+select {
+    width: 100%;
+    padding: 15px;
+    margin-bottom: 15px;
+    border: 1px solid #eee;
+    border-radius: 12px;
+    background: #f9f9f9;
+    font-size: 16px;
+    outline: none;
+    box-sizing: border-box;
+    transition: all 0.3s;
+    appearance: none; /* Removes default dropdown arrow */
+    /* Custom Pink Arrow for Dropdowns */
+    background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23ff4d88%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+    background-repeat: no-repeat;
+    background-position: right 15px top 50%;
+    background-size: 12px auto;
+}
+
+input:focus, select:focus {
+    border-color: #ff4d88;
+    background: white;
+    box-shadow: 0 5px 15px rgba(255, 77, 136, 0.1);
+}
+
+.primary-btn {
+    background: #ff4d88;
+    color: white;
+    border: none;
+    padding: 15px 40px;
+    border-radius: 30px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 10px 20px rgba(255, 77, 136, 0.3);
+    transition: transform 0.2s;
+    text-align: center;
+}
+
+.primary-btn:hover {
+    transform: translateY(-2px);
+    background: #e63e75;
+}
+
+/* ============================
+   FLIGHT CARDS (The Missing Part!)
+   ============================ */
+.flight-card {
+    background: white;
+    margin-top: 20px;
+    padding: 25px;
+    border-radius: 16px;
+    display: flex; /* Keeps info left, price right */
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    border-left: 5px solid #ff4d88;
+    transition: transform 0.2s;
+    position: relative;
+    z-index: 5; /* Ensures it sits above clouds */
+}
+
+.flight-card:hover {
+    transform: translateY(-5px);
+}
+
+.flight-route h3 {
+    margin: 0;
+    font-size: 22px;
+    color: #333;
+}
+
+.flight-route p {
+    margin: 5px 0 0 0;
+    color: #888;
+    font-size: 14px;
+}
+
+.flight-meta {
+    text-align: right;
+}
+
+.price-tag {
+    display: block;
+    font-size: 24px;
+    font-weight: 800;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.book-btn {
+    background: #333;
+    color: white;
+    padding: 10px 25px;
+    border-radius: 20px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.book-btn:hover {
+    background: #ff4d88;
+}
+
+/* ============================
+   Animations (Fixed position)
+   ============================ */
+.plane-container {
+    position: fixed;
+    top: 20%;
+    left: -10%;
+    z-index: 1;
+    animation: flyAcross 15s linear infinite;
+    pointer-events: none; /* Lets you click through it */
+}
+
+.plane-icon {
+    font-size: 60px;
+    transform: rotate(15deg);
+}
+
+.cloud {
+    position: fixed;
+    background: white;
+    border-radius: 50px;
+    opacity: 0.6;
+    z-index: 0;
+    pointer-events: none;
+}
+
+.cloud.one { width: 100px; height: 40px; top: 15%; left: 10%; animation: floatCloud 20s infinite linear; }
+.cloud.two { width: 140px; height: 60px; top: 25%; right: 15%; animation: floatCloud 25s infinite linear reverse; }
+.cloud.three { width: 80px; height: 30px; top: 60%; left: 20%; animation: floatCloud 18s infinite linear; }
+
+@keyframes flyAcross {
+    0% { left: -10%; transform: translateY(0px) rotate(15deg); }
+    100% { left: 110%; transform: translateY(0px) rotate(15deg); }
+}
+
+@keyframes floatCloud {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(100px); }
+}
+
+
+/* Status Badges */
+.status-badge {
+    padding: 8px 16px;
+    border-radius: 30px;
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: inline-block;
+}
+
+.status-confirmed {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.status-failed {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.status-pending {
+    background: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeeba;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 50px;
+    color: #777;
+    background: rgba(255,255,255,0.8);
+    border-radius: 16px;
+}
+
+@media print {
+    .navbar, .plane-container, .cloud, .hero-section { display: none !important; }
+    #ticketModal { display: block !important; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 9999; }
+    .print-hide { display: none; }
+}
+
+/* Styling for the Guest Mode Button */
+.secondary-btn {
+    background: transparent;      /* See-through background */
+    color: #ff4d88;               /* Pink Text */
+    border: 2px solid #ff4d88;    /* Pink Border */
+    padding: 15px 30px;           /* Same size as Login button */
+    border-radius: 30px;          /* Pill shape */
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;    /* Smooth animation */
+    box-shadow: none;
+}
+
+/* Hover Effect: Fills with pink */
+.secondary-btn:hover {
+    background: #ff4d88;
+    color: white;
+    transform: translateY(-3px);  /* Floats up slightly */
+    box-shadow: 0 10px 20px rgba(255, 77, 136, 0.2);
+}

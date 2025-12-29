@@ -1,0 +1,67 @@
+.page-wrapper {
+  min-height: 100vh;
+  padding: 60px 20px;
+  background: linear-gradient(180deg, #ffe4ec, #fff);
+}
+
+.search-card {
+  max-width: 520px;
+  margin: auto;
+  padding: 32px;
+}
+
+.search-card h2 {
+  margin-bottom: 20px;
+  font-size: 24px;
+}
+
+.search-card select {
+  width: 100%;
+  padding: 14px;
+  margin-bottom: 14px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  font-size: 15px;
+}
+
+.results {
+  max-width: 900px;
+  margin: 40px auto 0;
+  display: grid;
+  gap: 20px;
+}
+
+.flight-card {
+  background: #fff;
+  padding: 22px;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.flight-info h3 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.flight-info p {
+  margin: 6px 0;
+  color: #555;
+}
+
+.flight-price {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.book-btn {
+  padding: 10px 20px;
+  border-radius: 20px;
+  border: none;
+  cursor: pointer;
+  background: linear-gradient(135deg, #ff6fa5, #ff8bbd);
+  color: #fff;
+  font-size: 14px;
+}

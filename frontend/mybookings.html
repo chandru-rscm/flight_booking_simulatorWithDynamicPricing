@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Bookings | SkyBook</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        .bookings-container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+
+        /* --- UPGRADED GLASSMORPHISM CARD --- */
+        .booking-card {
+            background: rgba(255, 255, 255, 0.65); /* Translucent White */
+            backdrop-filter: blur(12px);            /* Frosted Glass Effect */
+            -webkit-backdrop-filter: blur(12px);    /* Safari Support */
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.1); /* Soft shadow */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 5px solid #ff4d88;
+            transition: all 0.3s ease;
+        }
+
+        /* --- HOVER GLOW EFFECT --- */
+        .booking-card:hover { 
+            transform: translateY(-5px) scale(1.01); 
+            background: rgba(255, 255, 255, 0.85);
+            box-shadow: 0 15px 40px rgba(255, 77, 136, 0.25); /* Pink Glow */
+        }
+
+        /* --- STATUS BADGES --- */
+        .status-badge {
+            background: #d1fae5; /* Default Green (Confirmed) */
+            color: #065f46;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+        
+        .status-cancelled {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        /* Orange for Pending Payment */
+        .status-pending {
+            background: #ffedd5; /* Light Orange */
+            color: #9a3412;      /* Dark Orange */
+        }
+
+        /* --- FLYING PLANE LOADER ANIMATION --- */
+        .loader-container {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        .flying-plane {
+            font-size: 40px;
+            display: inline-block;
+            animation: fly 2s infinite ease-in-out;
+            margin-bottom: 10px;
+        }
+        @keyframes fly {
+            0% { transform: translateX(-20px) translateY(5px) rotate(-10deg); opacity: 0.6; }
+            50% { transform: translateX(0px) translateY(-10px) rotate(5deg); opacity: 1; }
+            100% { transform: translateX(20px) translateY(5px) rotate(-10deg); opacity: 0.6; }
+        }
+
+        /* --- HIDDEN TICKET TEMPLATE --- */
+        #ticketTemplate {
+            display: none;
+            width: 600px;
+            background: #fff;
+            border: 1px solid #eee;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .ticket-header {
+            background: linear-gradient(135deg, #ff4d88, #ff8fb1);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .ticket-body { padding: 25px; display: flex; justify-content: space-between; }
+        .ticket-info label { display: block; font-size: 10px; color: #888; text-transform: uppercase; margin-bottom: 2px; }
+        .ticket-info p { margin: 0 0 15px 0; font-weight: bold; font-size: 16px; color: #333; }
+        
+        .barcode {
+            height: 40px;
+            background: repeating-linear-gradient(90deg, #333, #333 2px, #fff 2px, #fff 4px);
+            margin-top: 10px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="navbar">
+        <h2>SkyBook ✈️</h2>
+        <div style="display: flex; gap: 20px; align-items: center;">
+            <a href="search.html">Book Flight</a>
+            <a href="index.html" style="color: #ff4d88; border: 1px solid #ff4d88; padding: 5px 15px; border-radius: 20px;">Log Out</a>
+        </div>
+    </div>
+
+    <div class="plane-container"><div class="plane-icon">✈️</div></div>
+    <div class="cloud one"></div>
+    <div class="cloud two"></div>
+
+    <div class="bookings-container">
+        <h1 style="text-align: center; color: #333; margin-bottom: 10px;">Your Trips</h1>
+        <p style="text-align: center; color: #777; margin-bottom: 40px;">Manage your past and upcoming flights</p>
+
+        <div id="bookingsList">
+            <div class="loader-container">
+                <div class="flying-plane">✈️</div>
+                <p>Fetching your trips...</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="ticketContainer" style="position: absolute; top: -9999px;">
+        <div id="ticketTemplate">
+            <div class="ticket-header">
+                <h3 style="margin:0;">SkyBook Air</h3>
+                <span style="font-size: 12px; background: rgba(255,255,255,0.2); padding: 5px 10px; border-radius: 10px;">BOARDING PASS</span>
+            </div>
+            <div class="ticket-body">
+                <div style="text-align: left; flex: 1;">
+                    <div class="ticket-info">
+                        <label>Passenger</label>
+                        <p id="pdfName">--</p>
+                    </div>
+                    <div class="ticket-info">
+                        <label>From</label>
+                        <p id="pdfFrom">--</p>
+                    </div>
+                    <div class="ticket-info">
+                        <label>Date</label>
+                        <p id="pdfDate">--</p>
+                    </div>
+                </div>
+
+                <div style="text-align: right; flex: 1;">
+                    <div class="ticket-info">
+                        <label>Class</label>
+                        <p id="pdfClass">Economy</p>
+                    </div>
+                    <div class="ticket-info">
+                        <label>To</label>
+                        <p id="pdfTo">--</p>
+                    </div>
+                    <div class="ticket-info">
+                        <label>Seat</label>
+                        <p id="pdfSeat" style="color: #ff4d88; font-size: 22px;">--</p>
+                    </div>
+                </div>
+            </div>
+            <div style="padding: 0 25px 25px 25px;">
+                <div class="ticket-info" style="text-align: center;">
+                    <label>PNR</label>
+                    <p id="pdfPnr" style="margin-bottom: 5px;">--</p>
+                </div>
+                <div class="barcode"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = "http://127.0.0.1:8000";
+        let allFlights = [];
+
+        document.addEventListener("DOMContentLoaded", async () => {
+            const listDiv = document.getElementById("bookingsList");
+
+            // Simulate small delay so you can see the loading animation (Optional)
+            // setTimeout(async () => { ... }, 500); 
+
+            try {
+                // 1. Fetch Flights
+                const fRes = await fetch(`${API_BASE}/flights`);
+                allFlights = await fRes.json();
+
+                // 2. Fetch Bookings
+                const bRes = await fetch(`${API_BASE}/bookings`);
+                const bookings = await bRes.json();
+
+                if (bookings.length === 0) {
+                    listDiv.innerHTML = "<p style='text-align:center;'>No bookings found.</p>";
+                    return;
+                }
+
+                listDiv.innerHTML = ""; 
+
+                bookings.reverse().forEach(booking => {
+                    const flight = allFlights.find(f => f.flight_id == booking.flight_id);
+                    const origin = flight ? flight.origin : "Unknown";
+                    const dest = flight ? flight.destination : "Unknown";
+                    const fNo = flight ? flight.flight_number : "FL000";
+                    
+                    // --- STATUS BADGE LOGIC ---
+                    let badgeClass = "";
+                    if (booking.status === "CANCELLED") {
+                        badgeClass = "status-cancelled";
+                    } else if (booking.status === "PENDING_PAYMENT") {
+                        badgeClass = "status-pending"; // Orange
+                    }
+
+                    // Business Class Detection
+                    const rowNum = parseInt(booking.seat);
+                    const isBusiness = rowNum < 5;
+
+                    const card = document.createElement("div");
+                    card.className = "booking-card";
+                    if (booking.status === "CANCELLED") card.style.opacity = "0.6";
+
+                    card.innerHTML = `
+                        <div style="flex: 1;">
+                            <span class="status-badge ${badgeClass}">
+                                ${booking.status.replace('_', ' ')}
+                            </span>
+                            <div style="font-size: 14px; color: #888;">PNR: ${booking.pnr}</div>
+                            
+                            <div style="margin-top: 10px; display: flex; align-items: center; gap: 15px;">
+                                <div style="font-weight: bold; font-size: 18px; color: #333;">${origin}</div>
+                                <div style="color: #ff4d88;">➝</div>
+                                <div style="font-weight: bold; font-size: 18px; color: #333;">${dest}</div>
+                            </div>
+                            
+                            <div style="margin-top: 5px; font-size: 13px; color: #666;">
+                                ${booking.travel_date} • ${booking.passenger} • <span style="font-weight:bold; color:${isBusiness ? '#b45309' : '#555'}">${booking.seat} (${isBusiness ? 'Business' : 'Eco'})</span>
+                            </div>
+                        </div>
+
+                        <div style="text-align: right;">
+                            <h3 style="margin: 0 0 10px 0; color: #333;">${fNo}</h3>
+                            <div style="font-weight: bold; font-size: 20px; color: #ff4d88; margin-bottom: 10px;">₹${booking.price}</div>
+                            
+                            ${booking.status !== "CANCELLED" ? `
+                                <button onclick="generatePDF('${booking.pnr}', '${booking.passenger}', '${origin}', '${dest}', '${booking.travel_date}', '${booking.seat}', '${booking.price}')" 
+                                    class="primary-btn" style="padding: 8px 15px; font-size: 12px; background: #333;">
+                                    ⬇ Download
+                                </button>
+                                <button onclick="cancelBooking('${booking.pnr}')" 
+                                    style="padding: 8px 15px; font-size: 12px; border: 1px solid #ff4d88; background: white; color: #ff4d88; border-radius: 20px; cursor: pointer;">
+                                    Cancel
+                                </button>
+                            ` : `<span style="color: red; font-size: 12px;">Cancelled</span>`}
+                        </div>
+                    `;
+                    listDiv.appendChild(card);
+                });
+
+            } catch (e) {
+                console.error(e);
+                listDiv.innerHTML = "<p style='color:red; text-align:center;'>Error loading bookings.</p>";
+            }
+        });
+
+        // 3. GENERATE PDF FUNCTION
+        function generatePDF(pnr, name, from, to, date, seat, price) {
+            document.getElementById("pdfName").innerText = name;
+            document.getElementById("pdfFrom").innerText = from;
+            document.getElementById("pdfTo").innerText = to;
+            document.getElementById("pdfDate").innerText = date;
+            document.getElementById("pdfSeat").innerText = seat;
+            document.getElementById("pdfPnr").innerText = pnr;
+
+            const rowNum = parseInt(seat);
+            const classEl = document.getElementById("pdfClass");
+            if (rowNum < 5) {
+                classEl.innerText = "Business";
+                classEl.style.color = "#b45309";
+            } else {
+                classEl.innerText = "Economy";
+                classEl.style.color = "#333";
+            }
+
+            const element = document.getElementById("ticketTemplate");
+            element.style.display = "block";
+
+            const opt = {
+                margin: 10,
+                filename: `SkyBook_Ticket_${pnr}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            html2pdf().set(opt).from(element).save().then(() => {
+                element.style.display = "none";
+            });
+        }
+
+        async function cancelBooking(pnr) {
+            if (!confirm("Are you sure you want to cancel this booking?")) return;
+            try {
+                await fetch(`${API_BASE}/booking/${pnr}`, { method: "DELETE" });
+                location.reload();
+            } catch (e) { alert("Error cancelling"); }
+        }
+    </script>
+</body>
+</html>

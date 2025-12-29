@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Flights | SkyBook</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <div class="navbar">
+        <h2>SkyBook ✈️</h2>
+        <div style="display: flex; gap: 20px; align-items: center;">
+            <a href="mybookings.html">My Bookings</a>
+            <a href="index.html" style="color: #ff4d88; border: 1px solid #ff4d88; padding: 5px 15px; border-radius: 20px;">Log Out</a>
+        </div>
+    </div>
+
+    <div class="plane-container">
+        <div class="plane-icon">✈️</div>
+    </div>
+    <div class="cloud one"></div>
+    <div class="cloud two"></div>
+    <div class="cloud three"></div>
+
+    <div style="position: relative; z-index: 2; padding-top: 50px; padding-bottom: 50px;">
+        
+        <div class="hero-content" style="max-width: 900px; margin: 0 auto; animation: none; transform: none;">
+            <div style="text-align: center; margin-bottom: 30px;">
+                <h1 class="hero-title" style="font-size: 36px;">Where to next?</h1>
+                <p class="hero-subtitle">Discover your next adventure with real-time dynamic pricing.</p>
+            </div>
+
+            <div class="search-box" style="background: transparent; box-shadow: none; padding: 0; display: flex; gap: 15px; flex-wrap: wrap; align-items: flex-start;">
+                
+                <div style="flex: 1; min-width: 180px;">
+                    <label style="font-size: 12px; color: #ff4d88; font-weight: bold; margin-left: 5px; display: block; margin-bottom: 5px;">FROM</label>
+                    <select id="from" style="width: 100%; height: 50px; padding: 0 15px; border: 1px solid #eee; border-radius: 12px; background: #f9f9f9; outline: none; font-family: 'Poppins', sans-serif; font-size: 14px; color: #555; box-sizing: border-box;">
+                        <option value="">Origin City</option>
+                        <option value="DEL">Delhi</option>
+                        <option value="MAA">Chennai</option>
+                        <option value="BOM">Mumbai</option>
+                        <option value="BLR">Bangalore</option>
+                        <option value="HYD">Hyderabad</option> <option value="TRZ">Trichy</option>    </select>
+                </div>
+
+                <div style="display: flex; align-items: center; justify-content: center; height: 50px; margin-top: 22px;">
+                    <span style="font-size: 20px; color: #ff4d88;">➝</span>
+                </div>
+
+                <div style="flex: 1; min-width: 180px;">
+                    <label style="font-size: 12px; color: #ff4d88; font-weight: bold; margin-left: 5px; display: block; margin-bottom: 5px;">TO</label>
+                    <select id="to" style="width: 100%; height: 50px; padding: 0 15px; border: 1px solid #eee; border-radius: 12px; background: #f9f9f9; outline: none; font-family: 'Poppins', sans-serif; font-size: 14px; color: #555; box-sizing: border-box;">
+                        <option value="">Destination City</option>
+                        <option value="DEL">Delhi</option>
+                        <option value="MAA">Chennai</option>
+                        <option value="BOM">Mumbai</option>
+                        <option value="BLR">Bangalore</option>
+                        <option value="HYD">Hyderabad</option> <option value="TRZ">Trichy</option>    </select>
+                </div>
+
+                <div style="flex: 1; min-width: 150px;">
+                    <label style="font-size: 12px; color: #ff4d88; font-weight: bold; margin-left: 5px; display: block; margin-bottom: 5px;">DATE</label>
+                    <input type="date" id="travelDate" style="width: 100%; height: 50px; padding: 0 15px; border: 1px solid #eee; border-radius: 12px; background: #f9f9f9; outline: none; font-family: 'Poppins', sans-serif; font-size: 14px; color: #555; box-sizing: border-box;">
+                </div>
+
+                <div style="flex-basis: 100%; margin-top: 10px;">
+                    <button id="searchBtn" class="primary-btn" style="width: 100%;">
+                        Search Flights
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="results" class="container" style="max-width: 800px; margin-top: 30px;">
+            </div>
+
+    </div>
+
+    <script src="js/flights.js"></script>
+</body>
+</html>
