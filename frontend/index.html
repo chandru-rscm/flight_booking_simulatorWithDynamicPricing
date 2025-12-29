@@ -5,13 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Welcome to SkyBook ✈️</title>
     <link rel="stylesheet" href="css/style.css">
-    <style>
+<style>
         /* LANDING PAGE SPECIFIC STYLES */
         body { overflow-x: hidden; }
 
+        /* 1. LAYOUT FIX: Use Padding instead of Height */
+        /* This forces the box to grow with content, preventing overlaps */
         .hero-section {
-            min-height: 80vh; /* Allows it to grow if needed */
-            padding-top: 50px; /* Adds breathing room at top */
+            width: 100%;
+            padding-top: 100px;    /* Big space at top */
+            padding-bottom: 100px; /* Big space at bottom */
             display: flex;
             align-items: center;
             justify-content: center;
@@ -20,55 +23,43 @@
             z-index: 10;
         }
 
+        /* 2. TEXT FIX: Added standard properties to stop warnings */
         .hero-content h1 {
             font-size: 60px;
             margin-bottom: 20px;
             background: linear-gradient(to right, #333, #ff4d88);
+            
+            /* The Standard Way */
+            background-clip: text;
             -webkit-background-clip: text;
+            
+            /* Text Color Fill */
             -webkit-text-fill-color: transparent;
+            color: transparent;
+            
             font-weight: 800;
         }
 
         .hero-content p {
-            font-size: 20px;
-            color: #666;
-            margin-bottom: 40px;
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
+            font-size: 20px; color: #666; margin-bottom: 40px;
+            max-width: 600px; margin-left: auto; margin-right: auto;
         }
 
         .cta-buttons { display: flex; gap: 20px; justify-content: center; }
 
         .btn-large {
-            padding: 15px 40px;
-            border-radius: 30px;
-            font-size: 18px;
-            font-weight: bold;
-            text-decoration: none;
-            transition: transform 0.3s, box-shadow 0.3s;
-            cursor: pointer;
-            display: inline-block;
+            padding: 15px 40px; border-radius: 30px; font-size: 18px; font-weight: bold;
+            text-decoration: none; transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer; display: inline-block;
         }
-
-        .btn-primary {
-            background: #ff4d88;
-            color: white;
-            box-shadow: 0 10px 25px rgba(255, 77, 136, 0.4);
-            border: none;
-        }
-        .btn-secondary {
-            background: white;
-            color: #333;
-            border: 1px solid #ddd;
-        }
-
+        .btn-primary { background: #ff4d88; color: white; box-shadow: 0 10px 25px rgba(255, 77, 136, 0.4); border: none; }
+        .btn-secondary { background: white; color: #333; border: 1px solid #ddd; }
         .btn-large:hover { transform: translateY(-5px); }
 
-        /* FEATURE CARDS */
+        /* 3. CARD FIX: Simple margins, no negative numbers */
         .features-container {
             max-width: 1000px;
-            margin: 40px auto 50px auto; /* POSITIVE margin pushes it down */
+            margin: 0 auto 50px auto; /* Clean margins */
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 30px;
@@ -122,6 +113,8 @@
             </p>
         </div>
     </div>
+
+    <div style="height: 50px; width: 100%; clear: both;"></div> 
 
     <div class="features-container">
         <div class="feature-card">
