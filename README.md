@@ -1,179 +1,151 @@
-FLIGHT BOOKING SIMULATOR WITH DYNAMIC PRICING
-Milestone 1 + Milestone 2
+Flight Booking Simulator with Dynamic Pricing
+Milestones 1 to 3
 
-This project is part of the Infosys Interns Full Stack Program.
-It implements the backend for a Flight Booking Simulator using Python, FastAPI, SQLAlchemy, and SQLite.
+Project Overview
+This project is a Flight Booking Simulator developed to demonstrate how real-world airline booking systems work using dynamic pricing and REST APIs. The system allows users to search for flights, view dynamically calculated prices, book seats, simulate payments, and cancel bookings.
 
-The system supports:
+The project follows Agile methodology and is developed milestone-wise with proper sprint planning, testing, and retrospection.
 
-Flight searching
-
-Route and date-based filtering
-
-Sorting results
-
-Dynamic fare calculation
-
-Demand simulation
-
-External airline feed simulation
-
-Milestones 1 and 2 cover the complete backend foundation and pricing engine.
-
-=========================================================
-PROJECT OBJECTIVES
-
-Build a backend resembling real airline flight search systems
-
-Implement dynamic pricing based on seat availability, time, and demand
-
-Simulate airline schedule data
-
-Design clean APIs using FastAPI
-
-Implement ORM models using SQLAlchemy
-
-Prepare backend for later booking and UI modules
-
-=========================================================
-TECH STACK
-
+Technology Stack
 Backend Framework: FastAPI
-Database: SQLite (via SQLAlchemy ORM)
 Programming Language: Python
-API Documentation: Swagger / OpenAPI
-Environment: Python 3.13
+Database: SQLite
+API Style: REST APIs
+Development Methodology: Agile (Scrum)
 
-=========================================================
-FOLDER STRUCTURE
+System Architecture
+The system follows a client-server architecture.
+The frontend (static HTML/JS) communicates with the backend through REST APIs.
+The backend handles business logic, pricing calculation, and database operations using SQLite.
 
-flight_booking/
-backend.py → FastAPI routes
-db.py → Database engine, session, Base
-models.py → ORM Models (Airline, Airport, Flight)
-data_seed.py → Sample data generator
-pricing_engine.py → Dynamic pricing logic
-demand_simulator.py → Simulated demand and seat updates
-flights.db → SQLite database
-.gitignore → Repo ignore rules
-README.txt → Documentation
-myenv/ → Virtual environment (ignored)
+Milestone 1: Core Flight Search and Data Setup
 
-=========================================================
-MILESTONE 1 – CORE FLIGHT SEARCH & DATA MANAGEMENT
+Objective
+To create the foundational backend structure and APIs for flight data management.
 
-Database Schema Designed
+Implemented Features
 
-Airlines table (id, code, name)
+Designed relational database schema for flights and bookings
 
-Airports table (id, code, city, name)
+Created SQLite database
 
-Flights table (flight number, timings, prices, seats, demand level)
+Seeded initial flight data
 
-Database Setup
+Implemented API to fetch all flights
 
-SQLite database generated automatically
+Implemented API to fetch flight details by flight ID
 
-SQLAlchemy ORM used for table creation
+Outcome
+A stable backend capable of serving flight information through REST APIs.
 
-Data Seeding
+Milestone 2: Dynamic Pricing Engine
 
-data_seed.py populates the database with
+Objective
+To simulate real-time dynamic pricing similar to airline booking systems.
 
-Sample airlines
+Implemented Features
 
-Airports
+Developed a pricing engine module
 
-Multiple daily flights
+Implemented demand-based pricing logic
 
-Created FastAPI Endpoints
-GET /flights → Get all flights
-GET /search → Search flights by origin, destination, date
-GET /external/airline-feed → Mock airline data simulation
+Adjusted prices based on seat availability
 
-Input Validation
+Created API to fetch dynamically calculated flight prices
 
-Airport code format
+Outcome
+Flight prices change dynamically based on demand and availability, simulating real airline behavior.
 
-Date format (YYYY-MM-DD)
+Milestone 3: Booking, Payment, and Cancellation
 
-Route validation
+Objective
+To complete the full booking lifecycle.
 
-Empty result handling
+Implemented Features
 
-=========================================================
-MILESTONE 2 – DYNAMIC PRICING ENGINE
+Flight booking API with seat availability validation
 
-Dynamic pricing implemented using real airline-style logic.
+PNR generation for each booking
 
-Pricing adjustments include:
+Payment simulation API with success and failure scenarios
 
-Remaining Seats
-If < 20% → +20%
-If < 50% → +10%
+Booking cancellation API
 
-Time to Departure
-Within 1 day → +25%
-Within 3 days → +15%
-Within 7 days → +5%
+Seat restoration on cancellation
 
-Demand Level
-Level 2 → +10%
-Level 3 → +25%
+Proper error handling for invalid PNRs and no-seat conditions
 
-Final dynamic price = base price + adjustments.
+Outcome
+A complete backend flow covering search, booking, payment, and cancellation.
 
-Demand simulator script updates seats and demand regularly.
-
-=========================================================
-DEMAND SIMULATION
-
-demand_simulator.py performs:
-
-Random seat reduction
-
-Random demand level selection
-
-Continuous database updates
-
-This causes flight prices to fluctuate in real time.
-
-=========================================================
-API ENDPOINTS
+API Endpoints Summary
 
 GET /flights
-Returns all flights with both base and dynamic price.
+Fetches all available flights
 
-GET /search?origin=XXX&destination=YYY&date_str=YYYY-MM-DD
-Filters flights based on route and date.
-Optional sorting: sort_by=price or sort_by=duration.
+GET /flights/{id}
+Fetches details of a specific flight
 
-GET /external/airline-feed
-Simulated third-party airline schedule feed.
+GET /flights/{id}/price
+Returns dynamically calculated price
 
-=========================================================
-HOW TO RUN LOCALLY
+POST /booking
+Creates a new booking and generates PNR
 
-Install dependencies
-pip install fastapi uvicorn sqlalchemy
+POST /booking/pay/{pnr}
+Simulates payment for a booking
 
-Seed the database
-python data_seed.py
+DELETE /booking/{pnr}
+Cancels an existing booking
 
-Run server
-uvicorn backend:app --reload
+Testing
 
-Open Swagger UI
-http://127.0.0.1:8000/docs
+APIs tested manually through browser and local requests
 
-Run demand simulator (optional)
-python demand_simulator.py
+Edge cases handled such as:
 
-=========================================================
-NOTES
+No seat availability
 
-This repository contains the complete work for both Milestone 1 and Milestone 2.
+Invalid booking reference
 
-The backend is fully modular and ready for Milestone 3 (Booking System).
+Payment failure scenarios
 
-Codebase follows clean structure for professional backend applications.
+Test cases documented as part of Agile Test Plan
+
+Agile Methodology
+
+The project follows Agile Scrum practices.
+Product backlog was created for each feature.
+Work was completed sprint-wise based on milestones.
+Daily stand-up updates and sprint retrospectives were documented.
+
+Although the project is part of a team-based Agile setup, the backend development, pricing logic, and API testing were completed as an individual contribution.
+
+Key Learnings
+
+REST API development using FastAPI
+
+Database schema design for booking systems
+
+Implementation of dynamic pricing algorithms
+
+Applying Agile practices in a real project
+
+Handling real-world edge cases in backend systems
+
+How to Run the Backend
+
+Activate the virtual environment.
+Run the FastAPI server using uvicorn.
+
+The backend will be available at http://127.0.0.1:8000
+
+Future Enhancements
+
+Complete frontend integration
+
+User authentication and authorization
+
+Seat selection interface
+
+Cloud deployment
