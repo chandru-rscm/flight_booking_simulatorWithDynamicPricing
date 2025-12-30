@@ -7,7 +7,7 @@ from sqlalchemy import func
 import random
 import re
 
-# --- FIXED IMPORTS (No dots) ---
+# --- FIXED IMPORTS (No dots for Render) ---
 from data_seed import seed_data
 from db import get_db, engine
 from models import Flight, Booking, Base
@@ -19,12 +19,14 @@ app = FastAPI(
     description="Infosys Internship Project | Milestone 3",
 )
 
-# --- CORS MIDDLEWARE (Moved to Top) ---
+# --- 1. CORS MIDDLEWARE (CRITICAL FIX) ---
+# This allows your Frontend (on a different URL) to talk to this Backend.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=["*"],  # Allows ALL origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows ALL methods (GET, POST, etc.)
+    allow_headers=["*"],  # Allows ALL headers
 )
 
 # --- DATABASE SETUP ---
@@ -73,6 +75,8 @@ def list_flights(
         query = query.filter(Flight.destination_airport.has(code=destination))
     
     if date:
+        # SQLite stores dates as strings/datetime, compare just the date part if needed
+        # For simplicity in this demo, exact match or partial string match works best with SQLite
         query = query.filter(func.date(Flight.departure_datetime) == date)
 
     flights = query.all()
@@ -157,13 +161,13 @@ def create_booking(request: BookingRequest, db: Session = Depends(get_db)):
         seat_no=request.seat_no
     )
 
-    # 2. Extract Row Number
-    row_num = 12 # Default
-    match = re.match(r"(\d+)([A-Z]+)", request.seat_no)
+    # 2. Extract Row Number (e.g. "12A" -> 12)
+    row_num = 12 # Default to economy if regex fails
+    match = re.match(r"(\d+)", str(request.seat_no))
     if match:
         row_num = int(match.group(1))
 
-    # 3. Apply Multiplier
+    # 3. Apply Multiplier (Rows 1-4 are Business)
     final_price = base_dynamic_price
     if row_num < 5: 
         final_price = base_dynamic_price * 2.5
@@ -203,7 +207,8 @@ def pay_booking(pnr: str, db: Session = Depends(get_db)):
     if booking.status == "CANCELLED":
         raise HTTPException(400, "Booking cancelled")
 
-    success = random.choice([True, True, False])
+    # Simulate random payment success/failure (mostly success)
+    success = random.choice([True, True, True, False])
 
     booking.status = "CONFIRMED" if success else "PAYMENT_FAILED"
     db.commit()
@@ -268,7 +273,8 @@ def cancel_booking(pnr: str, db: Session = Depends(get_db)):
         return {"message": "Already cancelled"}
 
     flight = db.query(Flight).filter(Flight.id == booking.flight_id).first()
-    flight.available_seats += 1
+    if flight:
+        flight.available_seats += 1
 
     booking.status = "CANCELLED"
     db.commit()
@@ -296,11 +302,16 @@ def get_analytics(db: Session = Depends(get_db)):
             continue
 
         # Class Logic
-        row_num = int(re.match(r"(\d+)", b.seat_no).group(1))
-        if row_num < 5:
-            business_count += 1
-        else:
-            economy_count += 1
+        try:
+            match = re.match(r"(\d+)", str(b.seat_no))
+            if match:
+                row_num = int(match.group(1))
+                if row_num < 5:
+                    business_count += 1
+                else:
+                    economy_count += 1
+        except:
+            economy_count += 1 # Fallback
 
         # Airline Revenue Logic
         flight = db.query(Flight).filter(Flight.id == b.flight_id).first()
