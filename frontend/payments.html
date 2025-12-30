@@ -200,7 +200,8 @@
     </div>
 
     <script>
-        const API_BASE = "http://127.0.0.1:8000";
+        // --- UPDATED API URL (This now points to your live backend) ---
+        const API_BASE = "https://flight-backend-d2cb.onrender.com";
         const pnr = localStorage.getItem("pnr");
 
         if (!pnr) {
@@ -280,7 +281,7 @@
             }, 2000);
         });
 
-        // 3. UPDATED PDF Download Function (Fixes Clipping)
+        // 3. PDF Download Function
         function downloadPDF() {
             // Select the ticket element
             const element = document.getElementById("ticketArea");
@@ -293,7 +294,7 @@
                 html2canvas:  { 
                     scale: 2,       // Makes text sharp
                     useCORS: true,  // Important for external images/fonts
-                    scrollY: 0      // <--- THIS IS THE FIX (Prevents cutting off bottom)
+                    scrollY: 0      // Prevents cutting off bottom
                 },
                 jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
