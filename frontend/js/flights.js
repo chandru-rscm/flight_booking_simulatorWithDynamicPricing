@@ -2,7 +2,7 @@
 //const API_BASE = "http://127.0.0.1:8000";
 
 // NEW (Live Render URL) - Use YOUR specific link
-const API_BASE = "https://flight-booking-simulator-y78k.onrender.com/";
+const API_BASE = "https://flight-backend-d2cb.onrender.com/";
 
 // Helper: Calculate duration
 function getDuration(depStr, arrStr) {
