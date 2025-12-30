@@ -1,25 +1,33 @@
 # flight_booking/backend.py
 
 from fastapi import FastAPI, Depends, HTTPException, Query
+from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from sqlalchemy import func
-from .data_seed import seed_data
 import random
-import re  # <--- NEW IMPORT: Needed for reading row numbers
+import re
 
-from .db import get_db, engine
-from .models import Flight, Booking, Base
-from .pricing_engine import calculate_dynamic_price
-from .schemas import BookingRequest
-
-from fastapi.middleware.cors import CORSMiddleware
-
+# --- FIXED IMPORTS (No dots) ---
+from data_seed import seed_data
+from db import get_db, engine
+from models import Flight, Booking, Base
+from pricing_engine import calculate_dynamic_price
+from schemas import BookingRequest
 
 app = FastAPI(
     title="Flight Booking Simulator with Dynamic Pricing",
     description="Infosys Internship Project | Milestone 3",
 )
 
+# --- CORS MIDDLEWARE (Moved to Top) ---
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# --- DATABASE SETUP ---
 Base.metadata.create_all(bind=engine)
 
 @app.on_event("startup")
@@ -118,7 +126,7 @@ def get_flight_price(flight_id: int, db: Session = Depends(get_db)):
 
 
 # -----------------------------
-# 3) CREATE BOOKING (UPDATED FOR BUSINESS CLASS)
+# 3) CREATE BOOKING (Business Class Logic)
 # -----------------------------
 @app.post("/booking")
 def create_booking(request: BookingRequest, db: Session = Depends(get_db)):
@@ -137,9 +145,9 @@ def create_booking(request: BookingRequest, db: Session = Depends(get_db)):
 
     flight.available_seats -= 1
 
-    # --- BUSINESS CLASS PRICING LOGIC START ---
+    # --- BUSINESS CLASS PRICING LOGIC ---
     
-    # 1. Calculate Base Dynamic Price (includes Window/Aisle surcharge)
+    # 1. Base Dynamic Price
     base_dynamic_price = calculate_dynamic_price(
         flight.base_price,
         flight.available_seats,
@@ -149,27 +157,23 @@ def create_booking(request: BookingRequest, db: Session = Depends(get_db)):
         seat_no=request.seat_no
     )
 
-    # 2. Extract Row Number from Seat (e.g., "2A" -> 2)
-    # We use Regex to separate numbers from letters
-    row_num = 12 # Default to Economy
+    # 2. Extract Row Number
+    row_num = 12 # Default
     match = re.match(r"(\d+)([A-Z]+)", request.seat_no)
     if match:
         row_num = int(match.group(1))
 
     # 3. Apply Multiplier
-    # Rows 1-4 are Business Class -> 2.5x Multiplier
     final_price = base_dynamic_price
     if row_num < 5: 
         final_price = base_dynamic_price * 2.5
-
-    # --- BUSINESS CLASS PRICING LOGIC END ---
 
     booking = Booking(
         flight_id=flight.id,
         passenger_name=f"{request.passenger.first_name} {request.passenger.last_name}",
         seat_no=request.seat_no,
         travel_date=request.travel_date,
-        price=final_price, # Saves the correctly multiplied price
+        price=final_price,
         status="PENDING_PAYMENT",
         pnr=generate_pnr()
     )
@@ -271,15 +275,9 @@ def cancel_booking(pnr: str, db: Session = Depends(get_db)):
 
     return {"message": f"Booking {pnr} cancelled"}
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
 # -----------------------------
-# 8) ADMIN ANALYTICS (NEW)
+# 8) ADMIN ANALYTICS
 # -----------------------------
 @app.get("/admin/analytics")
 def get_analytics(db: Session = Depends(get_db)):
@@ -289,13 +287,8 @@ def get_analytics(db: Session = Depends(get_db)):
     total_bookings = len(bookings)
     confirmed_bookings = len([b for b in bookings if b.status == "CONFIRMED"])
     
-    # Calculate Business vs Economy
-    # (Row < 5 is Business)
     business_count = 0
     economy_count = 0
-    
-    # Calculate Revenue per Airline (for the Bar Chart)
-    # We need to join with Flight table to get Airline code (first 2 chars of flight number)
     airline_revenue = {} 
     
     for b in bookings:
@@ -310,10 +303,9 @@ def get_analytics(db: Session = Depends(get_db)):
             economy_count += 1
 
         # Airline Revenue Logic
-        # We fetch the flight to get the flight number (e.g., AI101)
         flight = db.query(Flight).filter(Flight.id == b.flight_id).first()
         if flight:
-            code = flight.flight_number[:2] # "AI", "6E", etc.
+            code = flight.flight_number[:2]
             airline_revenue[code] = airline_revenue.get(code, 0) + b.price
 
     return {
