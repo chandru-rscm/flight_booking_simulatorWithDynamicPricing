@@ -3,6 +3,8 @@ from sqlalchemy.orm import relationship
 from db import Base
 from datetime import datetime
 
+# --- FIXED IMPORT (Removed the dot) ---
+from db import Base 
 
 class Airline(Base):
     __tablename__ = "airlines"
