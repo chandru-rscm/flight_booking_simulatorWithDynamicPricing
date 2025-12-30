@@ -235,8 +235,7 @@
                     document.getElementById("ticketTo").innerText = flight.destination;
                 }
 
-                // Business Class Logic for Ticket Label
-                // (Matches the regex we used in backend: Rows 1-4 are Business)
+                // Business Class Logic
                 const rowNum = parseInt(data.seat_no);
                 if (rowNum < 5) {
                     document.getElementById("ticketClass").innerText = "Business";
@@ -281,16 +280,25 @@
             }, 2000);
         });
 
-        // 3. PDF Download Function
+        // 3. UPDATED PDF Download Function (Fixes Clipping)
         function downloadPDF() {
+            // Select the ticket element
             const element = document.getElementById("ticketArea");
+            
+            // Configuration Options
             const opt = {
-                margin:       10,
+                margin:       10,  // Adds whitespace around the ticket in the PDF
                 filename:     `SkyBook_Ticket_${pnr}.pdf`,
                 image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2 },
+                html2canvas:  { 
+                    scale: 2,       // Makes text sharp
+                    useCORS: true,  // Important for external images/fonts
+                    scrollY: 0      // <--- THIS IS THE FIX (Prevents cutting off bottom)
+                },
                 jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
+            
+            // Generate
             html2pdf().set(opt).from(element).save();
         }
     </script>

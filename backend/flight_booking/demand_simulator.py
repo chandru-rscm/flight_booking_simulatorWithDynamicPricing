@@ -1,5 +1,5 @@
-from .db import SessionLocal
-from .models import Flight
+from db import SessionLocal
+from models import Flight
 import random
 import time
 

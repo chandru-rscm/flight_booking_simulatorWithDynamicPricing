@@ -1,33 +1,31 @@
-# flight_booking/pricing_engine.py
+# pricing_engine.py
+import re
 
-from datetime import datetime
-import random
-
-def calculate_dynamic_price(base_price, available_seats, total_seats, departure_datetime, demand_level, seat_no=None):
-    # 1. Base Logic (Existing)
-    seat_factor = 1 - (available_seats / total_seats)
+def calculate_dynamic_price(base_price, available_seats, total_seats, departure_date, demand_level, seat_no=None):
+    # 1. Start with Base Price
+    price = base_price
     
-    days_left = (departure_datetime - datetime.now()).days
-    if days_left < 0: days_left = 0
-    time_factor = 0.02 * max(0, (10 - days_left))
+    # 2. Demand Factor
+    # If demand is High (3) -> +50%, Low (1) -> -10%
+    if demand_level == 3:
+        price *= 1.5
+    elif demand_level == 1:
+        price *= 0.9
 
-    demand_multiplier = {1: 0.0, 2: 0.10, 3: 0.20}
-    demand_factor = demand_multiplier.get(demand_level, 0)
-    
-    random_factor = random.uniform(0.0, 0.02)
+    # 3. Scarcity Factor (If plane is >80% full)
+    if total_seats > 0:
+        occupancy = (total_seats - available_seats) / total_seats
+        if occupancy > 0.8:
+            price *= 1.2
 
-    # Calculate Core Dynamic Price
-    price = base_price * (1 + seat_factor + time_factor + demand_factor + random_factor)
-
-    # 2. Seat Position Pricing (NEW)
-    seat_surcharge = 0
+    # 4. Business Class Logic (The new part!)
     if seat_no:
-        # Assuming format "12A", "14C", etc.
-        letter = seat_no[-1].upper() 
-        if letter == 'A':      # Window
-            seat_surcharge = 200
-        elif letter == 'C':    # Aisle
-            seat_surcharge = 100
-        # 'B' (Middle) has 0 surcharge
+        # Extract row number (e.g., "2A" -> 2)
+        match = re.match(r"(\d+)", str(seat_no))
+        if match:
+            row = int(match.group(1))
+            # Rows 1-4 are Business Class -> 2.5x Price
+            if row < 5:
+                price *= 2.5
 
-    return round(price + seat_surcharge, 2)
+    return round(price, 2)
