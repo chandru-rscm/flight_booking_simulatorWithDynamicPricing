@@ -1,4 +1,8 @@
-const API_BASE_URL = "http://127.0.0.1:8000";
+// OLD (Localhost)
+// const API_BASE = "http://127.0.0.1:8000";
+
+// NEW (Live Render URL) - Use YOUR specific link
+const API_BASE = "https://flight-booking-simulator-y78k.onrender.com/";
 
 async function apiGet(path) {
     try {
