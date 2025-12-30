@@ -1,8 +1,8 @@
 # flight_booking/data_seed.py
 
 from sqlalchemy.orm import Session
-from .db import SessionLocal, engine
-from .models import Base, Airline, Airport, Flight
+from db import SessionLocal, engine
+from models import Base, Airline, Airport, Flight
 from datetime import datetime, timedelta
 import random
 
