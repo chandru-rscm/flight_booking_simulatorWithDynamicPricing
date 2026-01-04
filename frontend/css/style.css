@@ -129,7 +129,7 @@ input:focus, select:focus {
 }
 
 /* ============================
-   FLIGHT CARDS (The Missing Part!)
+   FLIGHT CARDS & RESULTS
    ============================ */
 .flight-card {
     background: white;
@@ -190,7 +190,7 @@ input:focus, select:focus {
 }
 
 /* ============================
-   Animations (Fixed position)
+   Animations & Decorations
    ============================ */
 .plane-container {
     position: fixed;

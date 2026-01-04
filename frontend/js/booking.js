@@ -238,7 +238,6 @@ function loadWeather(city) {
     if (!city || !widget) return;
 
     // 1. Realistic Mock Data (Safe for Demos)
-    // We use a simple hash of the city name to pick a "random" but consistent weather
     const weathers = [
         { temp: 28, text: "Cloudy", icon: "☁️" },
         { temp: 32, text: "Sunny", icon: "☀️" },

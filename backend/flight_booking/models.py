@@ -3,7 +3,6 @@ from sqlalchemy.orm import relationship
 from db import Base
 from datetime import datetime
 
-# --- FIXED IMPORT (Removed the dot) ---
 from db import Base 
 
 class Airline(Base):
@@ -25,16 +24,16 @@ class Airport(Base):
     city = Column(String)
     name = Column(String)
 
-    # Relationships to Flight (Fixed Foreign Keys)
+    # Relationships to Flight (as origin and destination)
     origin_flights = relationship(
         "Flight",
         back_populates="origin_airport",
-        foreign_keys="Flight.origin_id"  # Fixed: matches the column name in Flight
+        foreign_keys="Flight.origin_id"  
     )
     destination_flights = relationship(
         "Flight",
         back_populates="destination_airport",
-        foreign_keys="Flight.destination_id" # Fixed: matches the column name in Flight
+        foreign_keys="Flight.destination_id" 
     )
 
 

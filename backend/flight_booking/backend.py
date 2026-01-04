@@ -1,5 +1,3 @@
-# flight_booking/backend.py
-
 from fastapi import FastAPI, Depends, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
@@ -7,7 +5,6 @@ from sqlalchemy import func
 import random
 import re
 
-# --- FIXED IMPORTS (No dots for Render) ---
 from data_seed import seed_data
 from db import get_db, engine
 from models import Flight, Booking, Base
@@ -75,8 +72,6 @@ def list_flights(
         query = query.filter(Flight.destination_airport.has(code=destination))
     
     if date:
-        # SQLite stores dates as strings/datetime, compare just the date part if needed
-        # For simplicity in this demo, exact match or partial string match works best with SQLite
         query = query.filter(func.date(Flight.departure_datetime) == date)
 
     flights = query.all()

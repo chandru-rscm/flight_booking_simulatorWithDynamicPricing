@@ -62,7 +62,6 @@ document.addEventListener("DOMContentLoaded", () => {
             </div>`;
 
         try {
-            // --- UPDATED: Pass date to Backend ---
             const res = await fetch(`${API_BASE}/flights?origin=${from}&destination=${to}&date=${dateInput}`);
             
             if (!res.ok) throw new Error("API Response was not OK");
