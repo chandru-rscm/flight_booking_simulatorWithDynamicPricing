@@ -3,73 +3,106 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login / Sign Up | SkyBook</title>
+    <title>Login | SkyBook</title>
     <link rel="stylesheet" href="css/style.css">
     <style>
+        /* --- THEME MATCHING CSS --- */
         body {
             font-family: 'Segoe UI', sans-serif;
-            background: linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 100%);
-            height: 100vh;
-            display: flex; justify-content: center; align-items: center;
+            background-color: #f8f9fa; /* Light grey background like dashboard */
+            display: flex; justify-content: center; align-items: center; height: 100vh;
+            margin: 0;
         }
-        .auth-container {
-            background: white; padding: 40px; border-radius: 20px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.1); width: 100%; max-width: 400px;
-            text-align: center; position: relative; overflow: hidden;
+
+        .auth-card {
+            background: white;
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08); /* Soft shadow */
+            border-top: 5px solid #ff4d88; /* SkyBook Pink Accent */
+            text-align: center;
         }
-        .auth-container::before {
-            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 5px;
-            background: linear-gradient(90deg, #ff4d88, #ff8fb1);
-        }
-        h2 { color: #333; margin-bottom: 20px; font-weight: 800; }
+
+        h2 { color: #333; margin-bottom: 25px; font-weight: 800; font-size: 28px; }
+        
+        .input-group { margin-bottom: 20px; text-align: left; }
+        label { display: block; font-size: 12px; font-weight: bold; color: #555; margin-bottom: 5px; text-transform: uppercase; }
+        
         input {
-            width: 100%; padding: 14px; margin-bottom: 15px;
-            border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px;
-            box-sizing: border-box; transition: 0.3s;
+            width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px;
+            font-size: 14px; box-sizing: border-box; transition: 0.2s;
         }
         input:focus { border-color: #ff4d88; outline: none; }
+
+        .btn-primary {
+            width: 100%; padding: 14px; background: #ff4d88; color: white;
+            border: none; border-radius: 8px; font-weight: bold; font-size: 16px;
+            cursor: pointer; transition: 0.2s; margin-top: 10px;
+        }
+        .btn-primary:hover { background: #e63e75; transform: translateY(-2px); }
         
-        .btn-auth {
-            width: 100%; padding: 14px; background: #333; color: white;
-            border: none; border-radius: 8px; font-weight: bold; cursor: pointer;
-            font-size: 16px; transition: 0.3s;
-        }
-        .btn-auth:hover { background: #000; transform: translateY(-2px); }
-        .toggle-link {
-            margin-top: 15px; font-size: 14px; color: #666;
-        }
-        .toggle-link span { color: #ff4d88; cursor: pointer; font-weight: bold; }
+        .toggle-text { margin-top: 20px; font-size: 14px; color: #666; }
+        .toggle-text span { color: #ff4d88; font-weight: bold; cursor: pointer; text-decoration: underline; }
+        
         .hidden { display: none; }
     </style>
 </head>
 <body>
 
-    <div class="auth-container" id="loginForm">
-        <h2>Welcome Back 👋</h2>
-        <input type="email" id="l_email" placeholder="Email Address">
-        <input type="password" id="l_password" placeholder="Password">
+    <div class="auth-card" id="loginForm">
+        <h2>SkyBook Login ✈️</h2>
         
-        <button class="btn-auth" id="loginBtn" onclick="handleLogin()">Log In</button>
-        <div class="toggle-link">
-            New to SkyBook? <span onclick="toggleAuth('signup')">Create Account</span>
+        <div class="input-group">
+            <label>Email Address</label>
+            <input type="email" id="l_email" placeholder="user@example.com">
+        </div>
+        <div class="input-group">
+            <label>Password</label>
+            <input type="password" id="l_password" placeholder="••••••">
+        </div>
+
+        <button class="btn-primary" id="loginBtn" onclick="handleLogin()">Log In</button>
+        
+        <div class="toggle-text">
+            New here? <span onclick="toggleAuth('signup')">Create an Account</span>
         </div>
     </div>
 
-    <div class="auth-container hidden" id="signupForm">
-        <h2>Create Account 🚀</h2>
-        <input type="text" id="s_name" placeholder="Full Name">
-        <input type="email" id="s_email" placeholder="Email Address">
-        <input type="text" id="s_phone" placeholder="Phone Number">
-        <input type="date" id="s_dob" placeholder="Date of Birth">
-        <input type="password" id="s_password" placeholder="Create Password">
+    <div class="auth-card hidden" id="signupForm">
+        <h2>Join SkyBook 🚀</h2>
         
-        <button class="btn-auth" id="signupBtn" onclick="handleSignup()">Sign Up</button>
-        <div class="toggle-link">
+        <div class="input-group">
+            <label>Full Name</label>
+            <input type="text" id="s_name" placeholder="John Doe">
+        </div>
+        <div class="input-group">
+            <label>Email Address</label>
+            <input type="email" id="s_email" placeholder="user@example.com">
+        </div>
+        <div class="input-group">
+            <label>Phone</label>
+            <input type="text" id="s_phone" placeholder="9876543210">
+        </div>
+        <div class="input-group">
+            <label>Date of Birth</label>
+            <input type="date" id="s_dob">
+        </div>
+        <div class="input-group">
+            <label>Password</label>
+            <input type="password" id="s_password" placeholder="Create a password">
+        </div>
+
+        <button class="btn-primary" id="signupBtn" onclick="handleSignup()">Sign Up</button>
+        
+        <div class="toggle-text">
             Already have an account? <span onclick="toggleAuth('login')">Log In</span>
         </div>
     </div>
 
     <script>
+        // CHANGE TO YOUR RENDER URL
         const API = "https://flight-backend-d2cb.onrender.com"; 
 
         window.onload = () => {
@@ -108,7 +141,7 @@
                 });
                 
                 if(res.ok) {
-                    alert("Account Created! You can now log in.");
+                    alert("Account Created! Please Log In.");
                     toggleAuth('login');
                 } else {
                     const data = await res.json();
@@ -136,11 +169,12 @@
                 const data = await res.json();
 
                 if(res.ok) {
-                    // Success: Save user and redirect
+                    // Success: Save user and redirect to SEARCH PAGE
                     localStorage.setItem("userEmail", data.email);
                     localStorage.setItem("userName", data.name);
-                    localStorage.setItem("loggedUser", data.email); // Backup key
-                    window.location.href = "index.html";
+                    localStorage.setItem("loggedUser", data.email); 
+                    
+                    window.location.href = "search.html"; // <-- FIX: Redirect to Search
                 } else {
                     alert(data.detail || "Invalid Email or Password");
                 }

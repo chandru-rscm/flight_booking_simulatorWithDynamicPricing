@@ -2,14 +2,14 @@
 //const API_BASE = "http://127.0.0.1:8000";
 
 // NEW (Live Render URL) - Use YOUR specific link
-// NEW (Live Render URL)
+// REPLACE with your Render URL
 const API_BASE = "https://flight-backend-d2cb.onrender.com";
 
 // Global Variables
 let currentClass = 'economy'; 
 let baseDynamicPrice = 0;
 let flightData = null;
-let selectedSeats = []; // Array to store multiple selected seats
+let selectedSeats = [];
 
 document.addEventListener("DOMContentLoaded", async () => {
     const flightId = localStorage.getItem("booking_flight_id");
@@ -24,17 +24,17 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
     
     if (!flightId || !travelDateStr) {
-        alert("Session expired.");
+        alert("Session expired. Please search again.");
         window.location.href = "search.html";
         return;
     }
 
-    // 1. Initialize Passenger Form (Add first passenger)
+    // Initialize UI
     if(document.getElementById("passengersContainer").children.length === 0) {
         addPassengerForm(true); 
     }
 
-    // 2. Fetch Flight Data
+    // Fetch Flight Data
     try {
         const res = await fetch(`${API_BASE}/flights`);
         const flights = await res.json();
@@ -44,20 +44,87 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         baseDynamicPrice = flightData.dynamic_price;
 
-        // Update Header Info
         document.getElementById("flightRouteDisplay").innerText = 
             `${flightData.flight_number} • ${flightData.origin} ➝ ${flightData.destination} • ${travelDateStr}`;
         
-        updateTotal(); // Initialize pricing
-        renderSeatMap(); // Render seats
+        updateTotal(); 
+        renderSeatMap(); 
 
     } catch (e) {
         console.error(e);
-        alert("Error loading flight info");
+        alert("Error loading flight info. Please try searching again.");
     }
 });
 
-// --- PASSENGER FORM LOGIC ---
+// --- CONFIRM BOOKING (THE CRITICAL FIX) ---
+async function confirmBooking() {
+    const passengers = [];
+    const inputs = document.querySelectorAll(".passenger-card");
+    const userEmail = localStorage.getItem("userEmail") || localStorage.getItem("loggedUser");
+    
+    // Validate Passengers
+    let valid = true;
+    inputs.forEach(card => {
+        const name = card.querySelector(".p-name").value;
+        const age = card.querySelector(".p-age").value;
+        if(!name || !age) valid = false;
+        
+        passengers.push({ 
+            first_name: name.split(" ")[0], 
+            last_name: name.split(" ").slice(1).join(" ") || "", 
+            age: parseInt(age) || 0 
+        });
+    });
+
+    if(!valid) return alert("Please fill all passenger details.");
+    if(selectedSeats.length !== passengers.length) return alert(`Please select exactly ${passengers.length} seats.`);
+
+    // Construct Payload
+    const payload = {
+        user_email: userEmail,
+        flight_id: parseInt(localStorage.getItem("booking_flight_id")),
+        passengers: passengers,
+        seat_class: currentClass,
+        travel_date: localStorage.getItem("booking_date"),
+        seat_numbers: selectedSeats 
+    };
+
+    const btn = document.getElementById("payButton");
+    const originalText = btn.innerHTML;
+    btn.innerText = "Processing...";
+    btn.disabled = true;
+
+    try {
+        // Send to Backend
+        const res = await fetch(`${API_BASE}/booking/create`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        });
+        
+        const data = await res.json();
+        
+        if(res.ok) {
+            // SUCCESS: Save ID and Redirect
+            localStorage.setItem("temp_booking_id", data.booking_id);
+            localStorage.setItem("temp_amount", data.amount);
+            
+            console.log("Booking created with ID:", data.booking_id);
+            window.location.href = "payments.html"; // Go to payment
+        } else {
+            alert("Booking Failed: " + (data.detail || JSON.stringify(data)));
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }
+    } catch(e) {
+        console.error(e);
+        alert("Server connection failed");
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    }
+}
+
+// --- HELPER FUNCTIONS (UI) ---
 function addPassengerForm(isFirst = false) {
     const container = document.getElementById("passengersContainer");
     const div = document.createElement("div");
@@ -83,57 +150,45 @@ function removePassenger(el) {
 
 function updatePassengerCount() {
     const count = document.getElementById("passengersContainer").children.length;
-    // Update text references if any exist
     if(document.getElementById("pCount")) document.getElementById("pCount").innerText = count;
-    
-    // Reset selections if count changes to ensure validity
     selectedSeats = [];
     renderSeatMap(); 
     updateTotal();
 }
 
-// --- SEAT MAP LOGIC ---
 function setSeatClass(cls) {
     currentClass = cls;
-    
-    // Toggle Button Styles
     const btnEco = document.getElementById("btnEco");
     const btnBiz = document.getElementById("btnBiz");
-    
     if(btnEco && btnBiz) {
         if(cls === 'economy') {
-            btnEco.style.background = '#fff'; btnEco.style.boxShadow = '0 2px 5px rgba(0,0,0,0.1)';
-            btnBiz.style.background = 'transparent'; btnBiz.style.boxShadow = 'none';
+            btnEco.style.background = '#fff'; 
+            btnBiz.style.background = 'transparent'; 
         } else {
-            btnBiz.style.background = '#fcd34d'; btnBiz.style.boxShadow = '0 2px 5px rgba(0,0,0,0.1)';
-            btnEco.style.background = 'transparent'; btnEco.style.boxShadow = 'none';
+            btnBiz.style.background = '#fcd34d'; 
+            btnEco.style.background = 'transparent'; 
         }
     }
-
     selectedSeats = [];
     renderSeatMap();
     updateTotal();
 }
 
 function getSeatSurcharge(col) {
-    // Window: A, F | Aisle: C, D (Economy)
     if (['A', 'F'].includes(col)) return 200;
     if (['C', 'D'].includes(col) && currentClass === 'economy') return 100;
     return 0;
 }
 
 function renderSeatMap() {
-    // FIX: Target 'seatMap' to match HTML ID
     const grid = document.getElementById("seatMap");
     if(!grid) return;
     grid.innerHTML = "";
     
     const rows = currentClass === 'economy' ? 12 : 5;
-    // Economy: 3-3 (A,B,C - D,E,F) | Business: 2-2 (A,C - D,F)
     const cols = currentClass === 'economy' ? ['A','B','C', 'SPACE', 'D','E','F'] : ['A','C', 'SPACE', 'D','F'];
     const startRow = currentClass === 'economy' ? 10 : 1;
 
-    // FIX: Dynamic Grid Columns to prevent collapse
     grid.style.gridTemplateColumns = currentClass === 'economy' 
         ? "repeat(3, 1fr) 30px repeat(3, 1fr)" 
         : "repeat(2, 1fr) 50px repeat(2, 1fr)";
@@ -143,7 +198,7 @@ function renderSeatMap() {
         cols.forEach(col => {
             if (col === 'SPACE') {
                 const spacer = document.createElement("div");
-                spacer.className = "aisle"; // CSS handles width
+                spacer.className = "aisle";
                 grid.appendChild(spacer);
                 return;
             }
@@ -153,23 +208,14 @@ function renderSeatMap() {
             seat.className = `seat ${currentClass}`;
             seat.innerText = seatId;
             
-            // Surcharge Tooltip
-            const surcharge = getSeatSurcharge(col);
-            const multiplier = currentClass === 'business' ? 2.5 : 1.0;
-            const seatCost = Math.round(baseDynamicPrice * multiplier) + surcharge;
-            seat.setAttribute("data-price", `₹${seatCost}`);
-
-            // Random Occupancy (Visual only)
             if (Math.random() < 0.25) {
                 seat.classList.add("occupied");
             } else {
                 seat.onclick = () => toggleSeat(seat, seatId);
             }
 
-            // Restore Selection State
             if(selectedSeats.includes(seatId)) {
                 seat.classList.add("selected");
-                // Specific fix for Business class color
                 if(currentClass === 'business') seat.classList.add("business-selected"); 
             }
 
@@ -195,27 +241,15 @@ function toggleSeat(el, id) {
     updateTotal();
 }
 
-// --- TOTAL & CONFIRM ---
 function updateTotal() {
-    // If element doesn't exist yet, skip
     if(!document.getElementById("totalFareDisplay")) return;
-
     const multiplier = currentClass === 'business' ? 2.5 : 1.0;
-    
-    // Calculate Base (Price * Count)
-    const pCount = selectedSeats.length; 
-    const baseTotal = Math.round(baseDynamicPrice * multiplier * pCount);
-    
-    // Calculate Surcharges
+    const baseTotal = Math.round(baseDynamicPrice * multiplier * selectedSeats.length);
     let surchargeTotal = 0;
-    selectedSeats.forEach(seat => {
-        const col = seat.slice(-1);
-        surchargeTotal += getSeatSurcharge(col);
-    });
+    selectedSeats.forEach(seat => { surchargeTotal += getSeatSurcharge(seat.slice(-1)); });
 
     const finalTotal = baseTotal + surchargeTotal;
     
-    // Update UI
     document.getElementById("baseFareDisplay").innerText = `₹${baseTotal}`;
     document.getElementById("surchargeDisplay").innerText = `+₹${surchargeTotal}`;
     document.getElementById("totalFareDisplay").innerText = `₹${finalTotal}`;
@@ -234,61 +268,5 @@ function updateTotal() {
         btn.style.cursor = "not-allowed";
         const remaining = totalPassengers - selectedSeats.length;
         btn.innerText = remaining > 0 ? `Select ${remaining} more seat(s)` : "Select Seats";
-    }
-}
-
-async function confirmBooking() {
-    const passengers = [];
-    const inputs = document.querySelectorAll(".passenger-card");
-    
-    let valid = true;
-    inputs.forEach(card => {
-        const name = card.querySelector(".p-name").value;
-        const age = card.querySelector(".p-age").value;
-        if(!name || !age) valid = false;
-        passengers.push({ 
-            first_name: name.split(" ")[0], 
-            last_name: name.split(" ").slice(1).join(" ") || "", 
-            age: parseInt(age) || 0 
-        });
-    });
-
-    if(!valid) return alert("Please fill all passenger details.");
-
-    const payload = {
-        user_email: localStorage.getItem("userEmail") || localStorage.getItem("loggedUser"),
-        flight_id: parseInt(localStorage.getItem("booking_flight_id")),
-        passengers: passengers,
-        seat_class: currentClass,
-        travel_date: localStorage.getItem("booking_date"),
-        seat_numbers: selectedSeats 
-    };
-
-    const btn = document.getElementById("payButton");
-    const originalText = btn.innerHTML;
-    btn.innerText = "Processing...";
-    btn.disabled = true;
-
-    try {
-        const res = await fetch(`${API_BASE}/booking/create`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload)
-        });
-        
-        const data = await res.json();
-        
-        if(res.ok) {
-            localStorage.setItem("temp_booking_id", data.booking_id);
-            window.location.href = "payments.html";
-        } else {
-            alert("Booking Failed: " + (data.detail || JSON.stringify(data)));
-            btn.innerHTML = originalText;
-            btn.disabled = false;
-        }
-    } catch(e) {
-        alert("Server connection failed");
-        btn.innerHTML = originalText;
-        btn.disabled = false;
     }
 }
