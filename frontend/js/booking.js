@@ -1,8 +1,7 @@
-// OLD (Localhost)
+// Localhost link
 //const API_BASE = "http://127.0.0.1:8000";
 
-// NEW (Live Render URL) - Use YOUR specific link
-// REPLACE with your Render URL
+//Render link
 const API_BASE = "https://flight-backend-d2cb.onrender.com";
 
 // Global Variables
@@ -56,7 +55,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 });
 
-// --- CONFIRM BOOKING (THE CRITICAL FIX) ---
 async function confirmBooking() {
     const passengers = [];
     const inputs = document.querySelectorAll(".passenger-card");
@@ -95,7 +93,6 @@ async function confirmBooking() {
     btn.disabled = true;
 
     try {
-        // Send to Backend
         const res = await fetch(`${API_BASE}/booking/create`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -105,12 +102,12 @@ async function confirmBooking() {
         const data = await res.json();
         
         if(res.ok) {
-            // SUCCESS: Save ID and Redirect
+
             localStorage.setItem("temp_booking_id", data.booking_id);
             localStorage.setItem("temp_amount", data.amount);
             
             console.log("Booking created with ID:", data.booking_id);
-            window.location.href = "payments.html"; // Go to payment
+            window.location.href = "payments.html"; 
         } else {
             alert("Booking Failed: " + (data.detail || JSON.stringify(data)));
             btn.innerHTML = originalText;
@@ -124,7 +121,6 @@ async function confirmBooking() {
     }
 }
 
-// --- HELPER FUNCTIONS (UI) ---
 function addPassengerForm(isFirst = false) {
     const container = document.getElementById("passengersContainer");
     const div = document.createElement("div");

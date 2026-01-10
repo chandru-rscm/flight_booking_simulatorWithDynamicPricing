@@ -243,14 +243,11 @@
         }
 
         function generateChart(bookings) {
-            // Count Airlines from Bookings (Simple Logic based on Flight Number Prefix)
-            // Example: AI101 -> Air India, 6E202 -> Indigo
+            
             const counts = { "Air India": 0, "Indigo": 0, "SpiceJet": 0, "Other": 0 };
             
-            // Simulating distribution for demo since we don't have Airline Name in recent-bookings endpoint yet
-            // In a real scenario, you'd fetch this from the backend
+            
             if(bookings.length > 0) {
-                 // Randomize for visual effect based on booking count
                  counts["Air India"] = Math.ceil(bookings.length * 0.4);
                  counts["Indigo"] = Math.ceil(bookings.length * 0.35);
                  counts["SpiceJet"] = Math.floor(bookings.length * 0.25);
@@ -258,7 +255,7 @@
 
             const ctx = document.getElementById('airlineChart').getContext('2d');
 
-            // Destroy previous chart if exists (to prevent overlap on refresh)
+        
             if (myChart) myChart.destroy();
 
             myChart = new Chart(ctx, {

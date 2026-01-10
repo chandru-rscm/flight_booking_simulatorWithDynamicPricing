@@ -10,7 +10,7 @@ async function loadStats() {
         }
 
         const data = await res.json();
-        console.log("Admin Data Received:", data); // Check Console (F12) to see this
+        console.log("Admin Data Received:", data); 
 
         // --- 1. Update Text Stats ---
         document.getElementById("totalRev").innerText = "₹" + (data.total_revenue || 0).toLocaleString();
@@ -62,5 +62,4 @@ async function loadStats() {
     }
 }
 
-// Load stats when the page finishes loading
 document.addEventListener("DOMContentLoaded", loadStats);

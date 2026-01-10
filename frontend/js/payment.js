@@ -1,7 +1,7 @@
-// OLD (Localhost)
+// Localhost link
 //const API_BASE = "http://127.0.0.1:8000";
 
-// NEW (Live Render URL) - Use YOUR specific link
+//Render link
 const API_BASE = "https://flight-backend-d2cb.onrender.com";
 
 document.addEventListener("DOMContentLoaded", async () => {

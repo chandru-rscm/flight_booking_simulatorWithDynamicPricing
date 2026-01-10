@@ -6,7 +6,6 @@ from sqlalchemy.orm import sessionmaker
 SQLALCHEMY_DATABASE_URL = "sqlite:///./flight_booking.db"
 
 # 2. Create Engine
-# connect_args is needed only for SQLite
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
 )

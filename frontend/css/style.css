@@ -8,9 +8,9 @@ body {
     overflow-x: hidden;
 }
 
-/* ============================
+/* =======
    Navbar
-   ============================ */
+   =======*/
 .navbar {
     display: flex;
     justify-content: space-between;
@@ -80,7 +80,6 @@ body {
 /* ============================
    Inputs & Buttons
    ============================ */
-/* Modern Inputs & Selects */
 input[type="text"], 
 input[type="email"], 
 input[type="password"],
@@ -95,8 +94,7 @@ select {
     outline: none;
     box-sizing: border-box;
     transition: all 0.3s;
-    appearance: none; /* Removes default dropdown arrow */
-    /* Custom Pink Arrow for Dropdowns */
+    appearance: none; 
     background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23ff4d88%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
     background-repeat: no-repeat;
     background-position: right 15px top 50%;
@@ -136,14 +134,14 @@ input:focus, select:focus {
     margin-top: 20px;
     padding: 25px;
     border-radius: 16px;
-    display: flex; /* Keeps info left, price right */
+    display: flex; 
     justify-content: space-between;
     align-items: center;
     box-shadow: 0 10px 30px rgba(0,0,0,0.05);
     border-left: 5px solid #ff4d88;
     transition: transform 0.2s;
     position: relative;
-    z-index: 5; /* Ensures it sits above clouds */
+    z-index: 5; 
 }
 
 .flight-card:hover {
@@ -198,7 +196,7 @@ input:focus, select:focus {
     left: -10%;
     z-index: 1;
     animation: flyAcross 15s linear infinite;
-    pointer-events: none; /* Lets you click through it */
+    pointer-events: none; 
 }
 
 .plane-icon {
@@ -275,15 +273,15 @@ input:focus, select:focus {
 
 /* Styling for the Guest Mode Button */
 .secondary-btn {
-    background: transparent;      /* See-through background */
-    color: #ff4d88;               /* Pink Text */
-    border: 2px solid #ff4d88;    /* Pink Border */
-    padding: 15px 30px;           /* Same size as Login button */
-    border-radius: 30px;          /* Pill shape */
+    background: transparent;      
+    color: #ff4d88;              
+    border: 2px solid #ff4d88;   
+    padding: 15px 30px;           
+    border-radius: 30px;          
     font-size: 16px;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.3s ease;    /* Smooth animation */
+    transition: all 0.3s ease; 
     box-shadow: none;
 }
 
@@ -291,7 +289,7 @@ input:focus, select:focus {
 .secondary-btn:hover {
     background: #ff4d88;
     color: white;
-    transform: translateY(-3px);  /* Floats up slightly */
+    transform: translateY(-3px); 
     box-shadow: 0 10px 20px rgba(255, 77, 136, 0.2);
 }
 
@@ -463,7 +461,7 @@ td {
 .status.orange { background: orange; }
 .status.red { background: red; }
 
-/* FEATURES GRID (Add this for Index.html features) */
+/* FEATURES GRID */
 .features-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -484,8 +482,9 @@ td {
     margin-bottom: 10px;
 }
 
-/* --- SEAT PRICE TOOLTIP --- */
-/* --- FIXED SEAT PRICE TOOLTIP --- */
+/* ============================
+   Seat Price Tooltip
+   ============================ */
 .seat {
     position: relative;
 }
@@ -498,17 +497,17 @@ td {
     transform: translateX(-50%);
     
     /* VISIBILITY FIXES */
-    background: #000000;   /* Pure black background */
-    color: #ffffff;        /* Pure white text */
-    font-size: 14px;       /* Larger text */
+    background: #000000;   
+    color: #ffffff;       
+    font-size: 14px;
     font-weight: bold;
-    padding: 8px 12px;     /* More breathing room */
+    padding: 8px 12px;
     border-radius: 6px;
     white-space: nowrap;
-    z-index: 1000;         /* Ensures it sits on top of everything */
+    z-index: 1000;
     box-shadow: 0 4px 10px rgba(0,0,0,0.3);
     pointer-events: none;
-    min-width: 60px;       /* Forces the box to have width even if text lags */
+    min-width: 60px;
     text-align: center;
 }
 

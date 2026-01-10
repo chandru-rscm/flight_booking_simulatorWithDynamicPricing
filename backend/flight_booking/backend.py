@@ -6,7 +6,6 @@ from fastapi_mail import FastMail, MessageSchema, ConnectionConfig, MessageType
 import random
 from datetime import datetime
 
-# --- IMPORT LOCAL MODULES ---
 from data_seed import seed_data
 from db import get_db, engine
 from models import Flight, Booking, Base, User
@@ -15,7 +14,6 @@ from schemas import BookingRequest, UserSignup, UserLogin, VerifyOTP
 
 app = FastAPI()
 
-# 1. ALLOW CROSS-ORIGIN REQUESTS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -30,7 +28,6 @@ Base.metadata.create_all(bind=engine)
 def startup_event():
     seed_data()
 
-# --- EMAIL CONFIGURATION (Kept for Ticket Confirmation only) ---
 conf = ConnectionConfig(
     MAIL_USERNAME = "chandramohanrs218@gmail.com",
     MAIL_PASSWORD = "xfkc woat qdho ymzh", 
@@ -43,13 +40,12 @@ conf = ConnectionConfig(
     VALIDATE_CERTS = True
 )
 
-# ==========================================
-# AUTH ROUTES (UPDATED: NO OTP)
-# ==========================================
+# ============
+# AUTH ROUTES 
+# ============
 
 @app.post("/auth/signup")
 def signup(user: UserSignup, db: Session = Depends(get_db)):
-    # Case Insensitive Check
     existing = db.query(User).filter(func.lower(User.email) == user.email.lower()).first()
     if existing: 
         raise HTTPException(400, "User already exists. Please Log In.")
@@ -78,7 +74,6 @@ def login(user: UserLogin, db: Session = Depends(get_db)):
     if not db_user: 
         raise HTTPException(400, "Invalid email or password.")
     
-    # Return user info directly
     return {
         "message": "Login successful", 
         "email": db_user.email, 
@@ -113,9 +108,9 @@ def list_flights(origin: str | None = Query(None), destination: str | None = Que
         })
     return response
 
-# ==========================================
+# ===============
 # BOOKING ROUTES
-# ==========================================
+# ===============
 
 @app.post("/booking/create")
 def create_booking(req: BookingRequest, db: Session = Depends(get_db)):
@@ -192,7 +187,6 @@ async def pay_booking(booking_id: int, background_tasks: BackgroundTasks, db: Se
     flight.available_seats -= booking.passenger_count
     db.commit()
 
-    # Try sending email, but don't crash if it fails
     try:
         email_body = f"""
         <div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #eee;">
@@ -226,7 +220,6 @@ def cancel_booking(pnr: str, db: Session = Depends(get_db)):
     if booking.status == "CANCELLED":
         return {"message": "Already cancelled"}
 
-    # Restore seats
     flight = db.query(Flight).filter(Flight.id == booking.flight_id).first()
     if flight:
         flight.available_seats += booking.passenger_count
@@ -256,9 +249,9 @@ def get_user_bookings(email: str, db: Session = Depends(get_db)):
         })
     return results
 
-# ==========================================
+# =============
 # ADMIN ROUTES
-# ==========================================
+# =============
 
 @app.get("/admin/stats")
 def get_admin_stats(db: Session = Depends(get_db)):

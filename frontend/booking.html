@@ -54,7 +54,7 @@
         .plane-body {
             background: #f8fafc;
             padding: 80px 50px 50px 50px;
-            border-radius: 150px 150px 30px 30px; /* More rounded nose */
+            border-radius: 150px 150px 30px 30px;
             border: 4px solid #cbd5e1;
             display: inline-block;
             position: relative;
@@ -84,7 +84,7 @@
             position: relative; z-index: 1;
         }
         
-        /* --- SEAT STYLING (CRITICAL FIXES) --- */
+        /* --- SEAT STYLING --- */
         .seat {
             width: 45px; height: 55px;
             background: #cbd5e1; /* Default Grey */
@@ -120,15 +120,15 @@
 
         /* 3. SELECTED (ECONOMY) - Defined AFTER to override */
         .seat.selected {
-            background: #ff4d88 !important; /* Force Pink */
+            background: #ff4d88 !important; 
             color: white !important;
             box-shadow: 0 4px 0 #be123c !important;
             transform: scale(1.05);
         }
 
-        /* 4. SELECTED (BUSINESS) - Specific Override for Premium Look */
+        /* 4. SELECTED (BUSINESS) */
         .seat.business.selected {
-            background: #ea580c !important; /* Dark Orange/Red */
+            background: #ea580c !important;
             color: white !important;
             box-shadow: 0 4px 0 #9a3412 !important;
         }

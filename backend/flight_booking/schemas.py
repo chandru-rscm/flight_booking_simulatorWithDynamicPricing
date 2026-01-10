@@ -29,5 +29,4 @@ class BookingRequest(BaseModel):
     passengers: List[PassengerDetail]
     seat_class: str 
     travel_date: str
-    # NEW: Accept specific seat numbers from user
     seat_numbers: List[str]

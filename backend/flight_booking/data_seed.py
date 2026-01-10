@@ -7,7 +7,6 @@ import random
 def seed_data():
     db = SessionLocal()
     
-    # 1. Check if data exists
     if db.query(Airline).first():
         db.close()
         print("✅ Data already exists. Skipping seed.")
@@ -15,7 +14,6 @@ def seed_data():
 
     print("🌱 Seeding data with MULTIPLE FLIGHTS per day...")
 
-    # 2. Add Airlines
     airlines = [
         Airline(code="6E", name="IndiGo"),
         Airline(code="AI", name="Air India"),
@@ -26,7 +24,6 @@ def seed_data():
     db.add_all(airlines)
     db.commit()
 
-    # 3. Add Airports
     airports = [
         Airport(code="DEL", city="Delhi", name="Indira Gandhi International Airport"),
         Airport(code="BOM", city="Mumbai", name="Chhatrapati Shivaji Maharaj International Airport"),
@@ -39,7 +36,6 @@ def seed_data():
     db.add_all(airports)
     db.commit()
 
-    # Reload to get IDs
     all_airlines = db.query(Airline).all()
     all_airports = db.query(Airport).all()
 
@@ -48,13 +44,11 @@ def seed_data():
     
     today = datetime.now()
     
-    # --- 4. GENERATE RANDOMIZED SCHEDULE ---
     for origin in all_airports:
         for destination in all_airports:
             if origin.id == destination.id:
-                continue # Skip same city
+                continue 
 
-            # Create flights for the next 15 days
             for day_offset in range(0, 16): 
                 
                 # RANDOM LOGIC: 
@@ -68,14 +62,11 @@ def seed_data():
                     hour = random.choice([5, 7, 9, 11, 14, 16, 18, 20, 22])
                     minute = random.choice([0, 15, 30, 45])
                     
-                    # Add random variance to hour so they aren't always exactly "07:00"
                     hour = min(23, hour + random.randint(0, 1))
 
-                    # Set date: Today + day_offset
                     flight_date = today + timedelta(days=day_offset)
                     dep_time = flight_date.replace(hour=hour, minute=minute, second=0, microsecond=0)
                     
-                    # Duration based on "distance" (simulated)
                     duration = random.randint(60, 180)
                     arr_time = dep_time + timedelta(minutes=duration)
 

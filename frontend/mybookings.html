@@ -238,7 +238,6 @@
             } catch (e) { alert("Server error."); }
         }
 
-        // --- NEW MODAL LOGIC FOR PDF ---
         function openTicketModal(pnr, from, to, date, namesEnc, seatsEnc, price) {
             const names = decodeURIComponent(namesEnc).split(", ");
             const seats = decodeURIComponent(seatsEnc).split(", ");
@@ -255,7 +254,7 @@
             }
             document.getElementById("pdfListBody").innerHTML = html;
 
-            // Show Modal (Flex to center)
+            // Show Modal
             document.getElementById("ticketModal").style.display = "flex";
         }
 
@@ -276,7 +275,7 @@
             };
 
             html2pdf().set(opt).from(element).save().then(() => {
-                closeModal(); // Auto-close after download
+                closeModal(); 
             });
         }
     </script>
