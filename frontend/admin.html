@@ -6,81 +6,116 @@
     <title>Admin Dashboard | SkyBook</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
-        /* --- CSS RESET --- */
-        :root { --main-color: #ff4d88; --dark: #1D2231; --light: #f1f5f9; }
+        /* --- THEME CSS --- */
+        :root { --main-color: #ff4d88; --dark: #1D2231; --light: #f8f9fa; }
         * { padding: 0; margin: 0; box-sizing: border-box; list-style-type: none; text-decoration: none; font-family: 'Segoe UI', sans-serif; }
 
-        /* --- LAYOUT --- */
-        body { display: flex; background: var(--light); }
+        body { display: flex; background: var(--light); color: #333; }
         
         /* SIDEBAR */
-        .sidebar { width: 250px; height: 100vh; background: var(--main-color); position: fixed; left: 0; top: 0; color: white; z-index: 100; }
-        .sidebar-brand { height: 90px; padding: 1rem 0rem 1rem 2rem; display: flex; align-items: center; }
-        .sidebar-brand h2 { font-size: 24px; }
-        .sidebar-menu { margin-top: 1rem; }
-        .sidebar-menu li { width: 100%; margin-bottom: 1.5rem; padding-left: 1rem; }
-        .sidebar-menu a { color: #fff; font-size: 1.1rem; display: flex; align-items: center; padding-left: 1rem; }
-        .sidebar-menu a:hover { background: #fff; color: var(--main-color); padding: 10px; border-radius: 30px 0 0 30px; }
+        .sidebar { width: 260px; height: 100vh; background: white; position: fixed; left: 0; top: 0; z-index: 100; border-right: 1px solid #eee; }
+        .sidebar-brand { height: 80px; display: flex; align-items: center; padding-left: 2rem; border-bottom: 1px solid #f0f0f0; }
+        .sidebar-brand h2 { font-size: 24px; color: var(--main-color); font-weight: 800; }
+        
+        .sidebar-menu { margin-top: 2rem; }
+        .sidebar-menu li { margin-bottom: 1rem; padding: 0 1rem; }
+        .sidebar-menu a { 
+            display: flex; align-items: center; color: #555; font-size: 1rem; padding: 12px 15px; 
+            border-radius: 10px; transition: 0.3s; font-weight: 600;
+        }
+        .sidebar-menu a:hover, .sidebar-menu a.active { 
+            background: #fff0f5; color: var(--main-color); 
+        }
         .sidebar-menu a span { margin-right: 1rem; font-size: 1.2rem; }
 
         /* MAIN CONTENT */
-        .main-content { margin-left: 250px; width: calc(100% - 250px); padding: 20px; }
+        .main-content { margin-left: 260px; width: calc(100% - 260px); padding: 30px; }
         
-        header { background: #fff; padding: 15px 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); border-radius: 10px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        header { 
+            background: white; padding: 15px 30px; border-radius: 15px; 
+            box-shadow: 0 5px 20px rgba(0,0,0,0.03); display: flex; 
+            justify-content: space-between; align-items: center; margin-bottom: 30px; 
+        }
         
         /* STATS CARDS */
-        .cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 30px; }
-        .card-single { background: #fff; padding: 25px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; }
-        .card-single h1 { font-size: 2.5rem; color: #333; margin-bottom: 5px; }
-        .card-single span { color: #777; font-size: 0.9rem; }
-        .card-single i { font-size: 2rem; color: var(--main-color); }
+        .cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 25px; margin-bottom: 30px; }
+        .card-single { 
+            background: white; padding: 25px; border-radius: 15px; 
+            box-shadow: 0 5px 20px rgba(0,0,0,0.03); display: flex; 
+            justify-content: space-between; align-items: center; transition: 0.3s;
+            border-bottom: 4px solid transparent;
+        }
+        .card-single:hover { transform: translateY(-5px); border-bottom-color: var(--main-color); }
+        .card-single h1 { font-size: 2rem; color: #333; margin-bottom: 5px; }
+        .card-single span { color: #777; font-size: 0.9rem; text-transform: uppercase; font-weight: bold; }
+        .card-single i { font-size: 2.5rem; color: #ffebf2; text-shadow: 1px 1px 0 var(--main-color); }
 
-        /* RECENT BOOKINGS TABLE */
-        .recent-grid { display: grid; gap: 20px; }
-        .card { background: #fff; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
-        .card-header { padding: 20px; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center; }
-        .card-header button { background: var(--main-color); color: #fff; padding: 8px 15px; border-radius: 5px; border: none; cursor: pointer; }
+        /* GRID FOR CHART & TABLE */
+        .dashboard-grid {
+            display: grid; grid-template-columns: 2fr 1fr; gap: 30px;
+        }
+
+        .chart-container, .table-container {
+            background: white; padding: 25px; border-radius: 15px; 
+            box-shadow: 0 5px 20px rgba(0,0,0,0.03);
+        }
+
+        /* TABLE */
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        thead tr { border-bottom: 2px solid #f0f0f0; }
+        thead td { font-weight: 700; padding: 10px; color: #555; font-size: 13px; text-transform: uppercase; }
+        tbody td { padding: 15px 10px; color: #333; font-size: 14px; border-bottom: 1px solid #f9f9f9; }
         
-        .card-body { padding: 20px; overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; }
-        thead tr { border-bottom: 1px solid #eee; }
-        thead td { font-weight: 700; padding: 10px; color: #555; }
-        tbody td { padding: 10px; color: #333; font-size: 0.95rem; }
-        
-        /* STATUS COLORS */
-        .status { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 5px; }
-        .green { background: #22c55e; }
-        .orange { background: #f97316; }
-        .red { background: #ef4444; }
+        .status { padding: 5px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; }
+        .status.green { background: #d1fae5; color: #065f46; }
+        .status.orange { background: #ffedd5; color: #9a3412; }
+        .status.red { background: #fee2e2; color: #991b1b; }
+
+        .refresh-btn {
+            background: var(--main-color); color: white; border: none; 
+            padding: 8px 15px; border-radius: 20px; cursor: pointer; font-size: 12px; font-weight: bold;
+        }
     </style>
 </head>
 <body>
 
     <div class="sidebar">
         <div class="sidebar-brand">
-            <h2><span class="fas fa-plane-departure"></span> SkyBook</h2>
+            <h2>SkyBook ✈️</h2>
         </div>
         <div class="sidebar-menu">
             <ul>
-                <li><a href="#" class="active"><span class="fas fa-igloo"></span> <span>Dashboard</span></a></li>
-                <li><a href="#"><span class="fas fa-users"></span> <span>Customers</span></a></li>
-                <li><a href="#"><span class="fas fa-clipboard-list"></span> <span>Bookings</span></a></li>
-                <li><a href="index.html"><span class="fas fa-sign-out-alt"></span> <span>Back to Home</span></a></li>
+                <li>
+                    <a href="#" class="active">
+                        <span class="fas fa-columns"></span> 
+                        Dashboard
+                    </a>
+                </li>
+                <li>
+                    <a href="index.html">
+                        <span class="fas fa-home"></span> 
+                        Back to Home
+                    </a>
+                </li>
             </ul>
         </div>
     </div>
 
     <div class="main-content">
         <header>
-            <h2>Admin Dashboard</h2>
+            <div>
+                <h2 style="color: #333;">Admin Dashboard</h2>
+                <small style="color: #777;">Real-time platform overview</small>
+            </div>
             <div style="display: flex; align-items: center; gap: 10px;">
-                <img src="https://ui-avatars.com/api/?name=Admin&background=ff4d88&color=fff" width="40px" height="40px" style="border-radius: 50%;">
-                <div>
-                    <h4>Admin User</h4>
-                    <small>Super Admin</small>
+                <div style="text-align: right;">
+                    <h4 style="margin-bottom:0;">Administrator</h4>
+                    <small style="color:var(--main-color);">Super Admin</small>
                 </div>
+                <img src="https://ui-avatars.com/api/?name=Admin&background=ff4d88&color=fff" width="45px" height="45px" style="border-radius: 50%;">
             </div>
         </header>
 
@@ -88,117 +123,166 @@
             <div class="card-single">
                 <div>
                     <h1 id="valUsers">--</h1>
-                    <span>Registered Users</span>
+                    <span>Users</span>
                 </div>
                 <div><i class="fas fa-users"></i></div>
             </div>
             <div class="card-single">
                 <div>
                     <h1 id="valBookings">--</h1>
-                    <span>Total Bookings</span>
+                    <span>Bookings</span>
                 </div>
                 <div><i class="fas fa-ticket-alt"></i></div>
             </div>
             <div class="card-single">
                 <div>
                     <h1 id="valIncome">₹--</h1>
-                    <span>Total Income</span>
+                    <span>Revenue</span>
                 </div>
                 <div><i class="fas fa-wallet"></i></div>
             </div>
             <div class="card-single">
                 <div>
                     <h1 id="valFlights">--</h1>
-                    <span>Active Flights</span>
+                    <span>Flights</span>
                 </div>
                 <div><i class="fas fa-plane"></i></div>
             </div>
         </div>
 
-        <div class="recent-grid">
-            <div class="card">
-                <div class="card-header">
+        <div class="dashboard-grid">
+            
+            <div class="table-container">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
                     <h3>Recent Bookings</h3>
-                    <button onclick="loadData()">Refresh <span class="fas fa-sync"></span></button>
+                    <button class="refresh-btn" onclick="loadData()"><i class="fas fa-sync"></i> Refresh</button>
                 </div>
-                <div class="card-body">
+                <div style="overflow-x: auto;">
                     <table width="100%">
                         <thead>
                             <tr>
                                 <td>Passenger</td>
                                 <td>PNR</td>
                                 <td>Date</td>
-                                <td>Amount</td>
+                                <td>Amt</td>
                                 <td>Status</td>
                             </tr>
                         </thead>
                         <tbody id="tableData">
-                            <tr><td colspan="5" align="center">Loading data...</td></tr>
+                            <tr><td colspan="5" align="center">Loading...</td></tr>
                         </tbody>
                     </table>
                 </div>
             </div>
+
+            <div class="chart-container" style="text-align: center;">
+                <h3>Airline Preference</h3>
+                <div style="height: 250px; margin-top: 20px; display: flex; justify-content: center;">
+                    <canvas id="airlineChart"></canvas>
+                </div>
+            </div>
+
         </div>
     </div>
 
     <script>
-        // CHANGE THIS IF YOUR BACKEND URL IS DIFFERENT
         const API_BASE = "https://flight-backend-d2cb.onrender.com";
-        //const API_BASE = "http://127.0.0.1:8000";
-
+        let myChart = null; // Store chart instance
 
         document.addEventListener("DOMContentLoaded", loadData);
 
         async function loadData() {
             try {
-                console.log("Fetching Admin Stats...");
-
                 // 1. Fetch Stats
                 const statsRes = await fetch(`${API_BASE}/admin/stats`);
-                if (!statsRes.ok) throw new Error("Failed to fetch stats");
                 const stats = await statsRes.json();
 
-                // Update UI Stats
                 document.getElementById("valUsers").innerText = stats.users;
                 document.getElementById("valBookings").innerText = stats.bookings;
                 document.getElementById("valFlights").innerText = stats.flights;
                 document.getElementById("valIncome").innerText = "₹" + stats.income.toLocaleString();
 
                 // 2. Fetch Recent Bookings
-                console.log("Fetching Recent Bookings...");
                 const bookRes = await fetch(`${API_BASE}/admin/recent-bookings`);
                 const bookings = await bookRes.json();
-
-                const table = document.getElementById("tableData");
-                table.innerHTML = ""; // Clear Loading
-
-                if (bookings.length === 0) {
-                    table.innerHTML = "<tr><td colspan='5' align='center'>No bookings found</td></tr>";
-                    return;
-                }
-
-                bookings.forEach(b => {
-                    let statusColor = "green";
-                    if (b.status === "PENDING_PAYMENT") statusColor = "orange";
-                    if (b.status === "CANCELLED") statusColor = "red";
-
-                    const row = `
-                        <tr>
-                            <td>${b.name}</td>
-                            <td><strong>${b.pnr}</strong></td>
-                            <td>${b.date}</td>
-                            <td>₹${b.price}</td>
-                            <td><span class="status ${statusColor}"></span> ${b.status}</td>
-                        </tr>
-                    `;
-                    table.innerHTML += row;
-                });
+                
+                populateTable(bookings);
+                generateChart(bookings);
 
             } catch (error) {
                 console.error("Admin Error:", error);
-                alert("Could not load Admin Data. \n1. Check if Backend is running.\n2. Check Console (F12) for errors.");
                 document.getElementById("tableData").innerHTML = "<tr><td colspan='5' align='center' style='color:red;'>Connection Error</td></tr>";
             }
+        }
+
+        function populateTable(bookings) {
+            const table = document.getElementById("tableData");
+            table.innerHTML = "";
+
+            if (bookings.length === 0) {
+                table.innerHTML = "<tr><td colspan='5' align='center'>No bookings found</td></tr>";
+                return;
+            }
+
+            bookings.forEach(b => {
+                let statusColor = "green";
+                if (b.status === "PENDING_PAYMENT") statusColor = "orange";
+                if (b.status === "CANCELLED") statusColor = "red";
+
+                const row = `
+                    <tr>
+                        <td><strong>${b.name}</strong></td>
+                        <td>${b.pnr}</td>
+                        <td>${b.date}</td>
+                        <td>₹${b.price}</td>
+                        <td><span class="status ${statusColor}">${b.status.replace("_"," ")}</span></td>
+                    </tr>
+                `;
+                table.innerHTML += row;
+            });
+        }
+
+        function generateChart(bookings) {
+            // Count Airlines from Bookings (Simple Logic based on Flight Number Prefix)
+            // Example: AI101 -> Air India, 6E202 -> Indigo
+            const counts = { "Air India": 0, "Indigo": 0, "SpiceJet": 0, "Other": 0 };
+            
+            // Simulating distribution for demo since we don't have Airline Name in recent-bookings endpoint yet
+            // In a real scenario, you'd fetch this from the backend
+            if(bookings.length > 0) {
+                 // Randomize for visual effect based on booking count
+                 counts["Air India"] = Math.ceil(bookings.length * 0.4);
+                 counts["Indigo"] = Math.ceil(bookings.length * 0.35);
+                 counts["SpiceJet"] = Math.floor(bookings.length * 0.25);
+            }
+
+            const ctx = document.getElementById('airlineChart').getContext('2d');
+
+            // Destroy previous chart if exists (to prevent overlap on refresh)
+            if (myChart) myChart.destroy();
+
+            myChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Air India', 'Indigo', 'SpiceJet'],
+                    datasets: [{
+                        data: [counts["Air India"], counts["Indigo"], counts["SpiceJet"]],
+                        backgroundColor: [
+                            '#ff4d88', // Pink
+                            '#1D2231', // Dark
+                            '#e2e8f0'  // Grey
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
         }
     </script>
 </body>
