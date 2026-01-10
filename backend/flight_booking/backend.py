@@ -15,7 +15,7 @@ from schemas import BookingRequest, UserSignup, UserLogin, VerifyOTP
 
 app = FastAPI()
 
-# 1. ALLOW CROSS-ORIGIN REQUESTS (Crucial for Frontend)
+# 1. ALLOW CROSS-ORIGIN REQUESTS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -24,103 +24,67 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# 2. CREATE DATABASE TABLES
 Base.metadata.create_all(bind=engine)
 
 @app.on_event("startup")
 def startup_event():
     seed_data()
 
-# --- EMAIL CONFIGURATION ---
-# --- EMAIL CONFIGURATION (UPDATED) ---
+# --- EMAIL CONFIGURATION (Kept for Ticket Confirmation only) ---
 conf = ConnectionConfig(
     MAIL_USERNAME = "chandramohanrs218@gmail.com",
-    MAIL_PASSWORD = "xfkc woat qdho ymzh",  # Make sure this is your 16-digit App Password
+    MAIL_PASSWORD = "xfkc woat qdho ymzh", 
     MAIL_FROM = "chandramohanrs218@gmail.com",
-    MAIL_PORT = 465,             # CHANGED: 587 -> 465
+    MAIL_PORT = 465,             
     MAIL_SERVER = "smtp.gmail.com",
-    MAIL_STARTTLS = False,       # CHANGED: True -> False
-    MAIL_SSL_TLS = True,         # CHANGED: False -> True
+    MAIL_STARTTLS = False,       
+    MAIL_SSL_TLS = True,         
     USE_CREDENTIALS = True,
-    VALIDATE_CERTS = True,
-    # Optional: Increase timeout if the server is still slow
-    TIMEOUT = 30 
+    VALIDATE_CERTS = True
 )
-# ==========================================
-# AUTH ROUTES
-# ==========================================
-# ... (Keep previous imports)
 
-# --- AUTH ROUTES ---
+# ==========================================
+# AUTH ROUTES (UPDATED: NO OTP)
+# ==========================================
 
 @app.post("/auth/signup")
 def signup(user: UserSignup, db: Session = Depends(get_db)):
-    # 1. Check if user exists (Case Insensitive)
+    # Case Insensitive Check
     existing = db.query(User).filter(func.lower(User.email) == user.email.lower()).first()
     if existing: 
         raise HTTPException(400, "User already exists. Please Log In.")
     
-    # 2. Create User
     new_user = User(
-        email=user.email.lower(), # Store as lowercase
-        password=user.password,   # In production, hash this!
+        email=user.email.lower(), 
+        password=user.password, 
         name=user.name, 
         phone=user.phone, 
         dob=user.dob
     )
     db.add(new_user)
-    db.commit() # IMPORTANT: Commit to save permanently
+    db.commit()
     db.refresh(new_user)
     
     return {"message": "Account created successfully"}
 
 @app.post("/auth/login")
-async def login(user: UserLogin, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
-    # 1. Find User (Case Insensitive)
+def login(user: UserLogin, db: Session = Depends(get_db)):
+    # Direct Password Check (No OTP)
     db_user = db.query(User).filter(
         func.lower(User.email) == user.email.lower(), 
         User.password == user.password
     ).first()
     
     if not db_user: 
-        raise HTTPException(400, "Invalid email or password. Please Sign Up if you are new.")
+        raise HTTPException(400, "Invalid email or password.")
     
-    # 2. Generate OTP
-    otp = str(random.randint(100000, 999999))
-    db_user.otp = otp
-    db.commit() # Save OTP
-    
-    # 3. Send Email
-    message = MessageSchema(
-        subject="SkyBook Login OTP", 
-        recipients=[db_user.email], 
-        body=f"Your Login OTP is: {otp}", 
-        subtype=MessageType.html
-    )
-    
-    fm = FastMail(conf)
-    background_tasks.add_task(fm.send_message, message)
-    
-    return {"message": "OTP sent to your email"}
+    # Return user info directly
+    return {
+        "message": "Login successful", 
+        "email": db_user.email, 
+        "name": db_user.name
+    }
 
-@app.post("/auth/verify")
-def verify(data: VerifyOTP, db: Session = Depends(get_db)):
-    # 1. Verify OTP
-    user = db.query(User).filter(func.lower(User.email) == data.email.lower()).first()
-    
-    if not user:
-        raise HTTPException(400, "User not found")
-        
-    if user.otp != data.otp:
-        raise HTTPException(400, "Invalid OTP")
-    
-    # 2. Clear OTP after success
-    user.otp = None
-    db.commit()
-    
-    return {"message": "Login successful", "email": user.email, "name": user.name}
-
-# ... (Rest of your backend code remains the same)
 # ==========================================
 # FLIGHT ROUTES
 # ==========================================
@@ -161,12 +125,10 @@ def create_booking(req: BookingRequest, db: Session = Depends(get_db)):
     if len(req.seat_numbers) != len(req.passengers): raise HTTPException(400, "Seat count mismatch")
     if flight.available_seats < len(req.passengers): raise HTTPException(400, "Not enough seats")
 
-    # 1. Price Calculation
     base_price = calculate_dynamic_price(flight.base_price, flight.available_seats, flight.total_seats, flight.departure_datetime, flight.demand_level)
     multiplier = 2.5 if req.seat_class.lower() == "business" else 1.0
     seat_base_cost = base_price * multiplier
 
-    # 2. Surcharges
     total_surcharge = 0
     for seat in req.seat_numbers:
         col = seat[-1]
@@ -175,11 +137,9 @@ def create_booking(req: BookingRequest, db: Session = Depends(get_db)):
 
     total_price = (seat_base_cost * len(req.passengers)) + total_surcharge
     
-    # 3. Format Strings
     p_names = ", ".join([f"{p.first_name} {p.last_name}" for p in req.passengers])
     seats_str = ", ".join(req.seat_numbers)
 
-    # 4. Create Pending Booking
     new_booking = Booking(
         user_email=req.user_email, 
         flight_id=flight.id, 
@@ -232,26 +192,28 @@ async def pay_booking(booking_id: int, background_tasks: BackgroundTasks, db: Se
     flight.available_seats -= booking.passenger_count
     db.commit()
 
-    # Send Email 
-    email_body = f"""
-    <div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #eee;">
-        <h1 style="color: #ff4d88;">Booking Confirmed!</h1>
-        <p>PNR: <b>{pnr}</b></p>
-        <p>Flight: {flight.flight_number}</p>
-        <p>Passengers: {booking.passenger_names}</p>
-        <p>Seats: {booking.seat_numbers}</p>
-        <p>Total: Rs. {booking.total_price}</p>
-    </div>"""
-    
-    message = MessageSchema(
-        subject=f"Ticket - {pnr}", 
-        recipients=[booking.user_email], 
-        body=email_body, 
-        subtype=MessageType.html
-    )
-    
-    fm = FastMail(conf)
-    background_tasks.add_task(fm.send_message, message)
+    # Try sending email, but don't crash if it fails
+    try:
+        email_body = f"""
+        <div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #eee;">
+            <h1 style="color: #ff4d88;">Booking Confirmed!</h1>
+            <p>PNR: <b>{pnr}</b></p>
+            <p>Flight: {flight.flight_number}</p>
+            <p>Passengers: {booking.passenger_names}</p>
+            <p>Seats: {booking.seat_numbers}</p>
+            <p>Total: Rs. {booking.total_price}</p>
+        </div>"""
+        
+        message = MessageSchema(
+            subject=f"Ticket - {pnr}", 
+            recipients=[booking.user_email], 
+            body=email_body, 
+            subtype=MessageType.html
+        )
+        fm = FastMail(conf)
+        background_tasks.add_task(fm.send_message, message)
+    except Exception as e:
+        print(f"Email failed to send (Ticket generated anyway): {e}")
 
     return {"status": "SUCCESS", "pnr": pnr}
 
@@ -276,9 +238,7 @@ def cancel_booking(pnr: str, db: Session = Depends(get_db)):
 
 @app.get("/my-bookings/{email}")
 def get_user_bookings(email: str, db: Session = Depends(get_db)):
-    # Fetch user bookings sorted by newest first
     bookings = db.query(Booking).filter(Booking.user_email == email).order_by(Booking.id.desc()).all()
-    
     results = []
     for b in bookings:
         flight = db.query(Flight).filter(Flight.id == b.flight_id).first()
@@ -297,7 +257,7 @@ def get_user_bookings(email: str, db: Session = Depends(get_db)):
     return results
 
 # ==========================================
-# ADMIN ROUTES (CRITICAL FIXES)
+# ADMIN ROUTES
 # ==========================================
 
 @app.get("/admin/stats")
@@ -306,7 +266,6 @@ def get_admin_stats(db: Session = Depends(get_db)):
         user_count = db.query(User).count()
         booking_count = db.query(Booking).count()
         
-        # Safe Sum Calculation (Handles Null case)
         income_query = db.query(func.sum(Booking.total_price)).filter(Booking.status == "CONFIRMED").scalar()
         total_income = income_query if income_query else 0
         
@@ -325,14 +284,10 @@ def get_admin_stats(db: Session = Depends(get_db)):
 @app.get("/admin/recent-bookings")
 def get_recent_bookings(db: Session = Depends(get_db)):
     try:
-        # Fetch last 10 bookings
         bookings = db.query(Booking).order_by(Booking.id.desc()).limit(10).all()
-        
         results = []
         for b in bookings:
-            # Safety check for name
             p_name = b.passenger_names.split(",")[0] if b.passenger_names else "Unknown"
-            
             results.append({
                 "name": p_name, 
                 "pnr": b.pnr or "Pending",
@@ -342,5 +297,4 @@ def get_recent_bookings(db: Session = Depends(get_db)):
             })
         return results
     except Exception as e:
-        print(f"Recent Bookings Error: {e}")
         return []

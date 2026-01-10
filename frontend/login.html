@@ -3,184 +3,152 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Access | SkyBook</title>
+    <title>Login / Sign Up | SkyBook</title>
     <link rel="stylesheet" href="css/style.css">
     <style>
-        .auth-container { max-width: 380px; margin: 0 auto; text-align: center; }
-        .hidden { display: none; }
-        .switch-btn { 
-            background: none; border: none; color: #ff4d88; 
-            cursor: pointer; text-decoration: underline; margin-top: 15px; font-size: 14px;
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 100%);
+            height: 100vh;
+            display: flex; justify-content: center; align-items: center;
         }
-        input { margin-bottom: 12px; width: 100%; box-sizing: border-box; padding: 12px; border: 1px solid #ddd; border-radius: 8px;}
+        .auth-container {
+            background: white; padding: 40px; border-radius: 20px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.1); width: 100%; max-width: 400px;
+            text-align: center; position: relative; overflow: hidden;
+        }
+        .auth-container::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 5px;
+            background: linear-gradient(90deg, #ff4d88, #ff8fb1);
+        }
+        h2 { color: #333; margin-bottom: 20px; font-weight: 800; }
+        input {
+            width: 100%; padding: 14px; margin-bottom: 15px;
+            border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px;
+            box-sizing: border-box; transition: 0.3s;
+        }
+        input:focus { border-color: #ff4d88; outline: none; }
         
-        /* OTP Input Style */
-        #otp { letter-spacing: 5px; font-weight: bold; text-align: center; font-size: 18px; }
+        .btn-auth {
+            width: 100%; padding: 14px; background: #333; color: white;
+            border: none; border-radius: 8px; font-weight: bold; cursor: pointer;
+            font-size: 16px; transition: 0.3s;
+        }
+        .btn-auth:hover { background: #000; transform: translateY(-2px); }
+        .toggle-link {
+            margin-top: 15px; font-size: 14px; color: #666;
+        }
+        .toggle-link span { color: #ff4d88; cursor: pointer; font-weight: bold; }
+        .hidden { display: none; }
     </style>
 </head>
 <body>
 
-    <div class="navbar"><h2>SkyBook ✈️</h2></div>
-    <div class="plane-container"><div class="plane-icon">✈️</div></div>
-    <div class="cloud one"></div>
-    <div class="cloud two"></div>
+    <div class="auth-container" id="loginForm">
+        <h2>Welcome Back 👋</h2>
+        <input type="email" id="l_email" placeholder="Email Address">
+        <input type="password" id="l_password" placeholder="Password">
+        
+        <button class="btn-auth" id="loginBtn" onclick="handleLogin()">Log In</button>
+        <div class="toggle-link">
+            New to SkyBook? <span onclick="toggleAuth('signup')">Create Account</span>
+        </div>
+    </div>
 
-    <div class="hero-section">
-        <div class="hero-content auth-container">
-            <h2 id="formTitle" style="color:#ff4d88; margin-bottom: 20px;">Login</h2>
-            
-            <div id="authForm">
-                
-                <div id="signupFields" class="hidden">
-                    <input id="fullname" type="text" placeholder="Full Name">
-                    <input id="phone" type="tel" placeholder="Phone Number">
-                    <input id="dob" type="text" placeholder="Date of Birth" onfocus="(this.type='date')" onblur="(this.type='text')">
-                </div>
-
-                <input id="email" type="email" placeholder="Email Address">
-                <input id="password" type="password" placeholder="Password">
-                
-                <button onclick="handleAuth()" class="primary-btn" style="width:100%" id="actionBtn">Login</button>
-            </div>
-
-            <div id="otpForm" class="hidden">
-                <p style="color:#555; margin-bottom:15px;">
-                    We sent a code to <b id="otpEmailDisplay"></b>
-                </p>
-                <input id="otp" type="number" placeholder="Enter 6-digit OTP">
-                <button onclick="verifyOtp()" class="primary-btn" style="width:100%">Verify & Login</button>
-                <p style="font-size:12px; color:#999; margin-top:10px; cursor:pointer;" onclick="location.reload()">Wrong email? Back</p>
-            </div>
-
-            <p id="statusMsg" style="margin-top:15px; font-size:13px; font-weight:bold;"></p>
-            
-            <button class="switch-btn" onclick="toggleMode()" id="toggleBtn">
-                New User? Create Account
-            </button>
+    <div class="auth-container hidden" id="signupForm">
+        <h2>Create Account 🚀</h2>
+        <input type="text" id="s_name" placeholder="Full Name">
+        <input type="email" id="s_email" placeholder="Email Address">
+        <input type="text" id="s_phone" placeholder="Phone Number">
+        <input type="date" id="s_dob" placeholder="Date of Birth">
+        <input type="password" id="s_password" placeholder="Create Password">
+        
+        <button class="btn-auth" id="signupBtn" onclick="handleSignup()">Sign Up</button>
+        <div class="toggle-link">
+            Already have an account? <span onclick="toggleAuth('login')">Log In</span>
         </div>
     </div>
 
     <script>
-        const API = "https://flight-backend-d2cb.onrender.com";
-        //const API_BASE = "http://127.0.0.1:8000";
-        let isSignup = false;
-        let currentEmail = "";
+        const API = "https://flight-backend-d2cb.onrender.com"; 
 
-        // Toggle between Login and Sign Up UI
-        function toggleMode() {
-            isSignup = !isSignup;
-            const signupFields = document.getElementById("signupFields");
-            
-            if (isSignup) {
-                signupFields.classList.remove("hidden");
-                document.getElementById("formTitle").innerText = "Create Account";
-                document.getElementById("actionBtn").innerText = "Sign Up";
-                document.getElementById("toggleBtn").innerText = "Have an account? Login";
+        window.onload = () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            if(urlParams.get('mode') === 'signup') toggleAuth('signup');
+        };
+
+        function toggleAuth(mode) {
+            if(mode === 'signup') {
+                document.getElementById('loginForm').classList.add('hidden');
+                document.getElementById('signupForm').classList.remove('hidden');
             } else {
-                signupFields.classList.add("hidden");
-                document.getElementById("formTitle").innerText = "Login";
-                document.getElementById("actionBtn").innerText = "Login";
-                document.getElementById("toggleBtn").innerText = "New User? Create Account";
+                document.getElementById('signupForm').classList.add('hidden');
+                document.getElementById('loginForm').classList.remove('hidden');
             }
-            document.getElementById("statusMsg").innerText = "";
         }
 
-        // Handle the first button click (Login or Signup)
-        async function handleAuth() {
-            const email = document.getElementById("email").value;
-            const password = document.getElementById("password").value;
-            const status = document.getElementById("statusMsg");
-            
-            if(!email || !password) { status.innerText = "Please fill email and password"; status.style.color="red"; return; }
+        async function handleSignup() {
+            const btn = document.getElementById("signupBtn");
+            const payload = {
+                name: document.getElementById("s_name").value,
+                email: document.getElementById("s_email").value.toLowerCase(), 
+                phone: document.getElementById("s_phone").value,
+                dob: document.getElementById("s_dob").value,
+                password: document.getElementById("s_password").value
+            };
 
-            // Decide Endpoint
-            const endpoint = isSignup ? "/auth/signup" : "/auth/login";
-            let payload = { email, password };
+            if(!payload.name || !payload.email || !payload.password) return alert("Please fill all fields");
 
-            // Add extra fields if Signing Up
-            if (isSignup) {
-                const name = document.getElementById("fullname").value;
-                const phone = document.getElementById("phone").value;
-                const dob = document.getElementById("dob").value;
-                if (!name || !phone || !dob) {
-                    status.innerText = "Please fill all details"; 
-                    status.style.color="red";
-                    return; 
-                }
-                payload = { ...payload, name, phone, dob };
-            }
-
-            status.innerText = isSignup ? "Creating Account..." : "Checking credentials...";
-            status.style.color = "blue";
+            btn.innerText = "Creating Account..."; btn.disabled = true;
 
             try {
-                const res = await fetch(API + endpoint, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
+                const res = await fetch(`${API}/auth/signup`, {
+                    method: "POST", headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(payload)
                 });
-                const data = await res.json();
-
-                if (!res.ok) throw new Error(data.detail || "Error occurred");
-
-                if (isSignup) {
-                    // SIGN UP SUCCESS
-                    alert("Account Created! Switching to Login...");
-                    toggleMode(); // Switch back to login view
-                    document.getElementById("email").value = email; // Auto-fill email
-                    status.innerText = "";
+                
+                if(res.ok) {
+                    alert("Account Created! You can now log in.");
+                    toggleAuth('login');
                 } else {
-                    // LOGIN SUCCESS -> SHOW OTP
-                    currentEmail = email;
-                    document.getElementById("authForm").classList.add("hidden");
-                    document.getElementById("otpForm").classList.remove("hidden");
-                    document.getElementById("toggleBtn").classList.add("hidden"); // Hide switch button
-                    document.getElementById("otpEmailDisplay").innerText = email;
-                    
-                    status.innerText = "OTP sent to your email!";
-                    status.style.color = "green";
+                    const data = await res.json();
+                    alert(data.detail || "Signup Failed");
                 }
-            } catch (err) {
-                status.innerText = err.message;
-                status.style.color = "red";
-            }
+            } catch(e) { alert("Server connection failed"); }
+            btn.innerText = "Sign Up"; btn.disabled = false;
         }
 
-        // Handle the second button click (Verify OTP)
-        async function verifyOtp() {
-            const otp = document.getElementById("otp").value;
-            const status = document.getElementById("statusMsg");
-            
-            status.innerText = "Verifying...";
-            status.style.color = "blue";
+        async function handleLogin() {
+            const btn = document.getElementById("loginBtn");
+            const email = document.getElementById("l_email").value.toLowerCase();
+            const password = document.getElementById("l_password").value;
+
+            if(!email || !password) return alert("Please enter credentials");
+
+            btn.innerText = "Logging in..."; btn.disabled = true;
 
             try {
-                const res = await fetch(API + "/auth/verify", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ email: currentEmail, otp })
+                const res = await fetch(`${API}/auth/login`, {
+                    method: "POST", headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ email, password })
                 });
-                const data = await res.json();
                 
-                if (res.ok) {
-                    // VERIFICATION SUCCESS
-                    localStorage.setItem("userEmail", currentEmail);
-                    if(data.name) localStorage.setItem("userName", data.name);
-                    
-                    status.innerText = "Success! Redirecting...";
-                    status.style.color = "green";
-                    
-                    setTimeout(() => {
-                        window.location.href = "search.html"; 
-                    }, 1000);
+                const data = await res.json();
+
+                if(res.ok) {
+                    // Success: Save user and redirect
+                    localStorage.setItem("userEmail", data.email);
+                    localStorage.setItem("userName", data.name);
+                    localStorage.setItem("loggedUser", data.email); // Backup key
+                    window.location.href = "index.html";
                 } else {
-                    status.innerText = "Invalid OTP. Please try again.";
-                    status.style.color = "red";
+                    alert(data.detail || "Invalid Email or Password");
                 }
-            } catch (err) { 
-                status.innerText = "Server Error"; 
-                status.style.color = "red";
+            } catch(e) { 
+                console.error(e);
+                alert("Server Connection Error"); 
             }
+            btn.innerText = "Log In"; btn.disabled = false;
         }
     </script>
 </body>
