@@ -6,44 +6,54 @@
     <title>Login | SkyBook</title>
     <link rel="stylesheet" href="css/style.css">
     <style>
-        /* --- THEME MATCHING CSS --- */
         body {
             font-family: 'Segoe UI', sans-serif;
-            background-color: #f8f9fa; /* Light grey background like dashboard */
-            display: flex; justify-content: center; align-items: center; height: 100vh;
-            margin: 0;
+            background-color: #f0f2f5; 
+            display: flex; justify-content: center; align-items: center; min-height: 100vh;
+            margin: 0; padding: 20px; /* Padding prevents card from touching screen edges */
         }
+
+        /* --- HOME BUTTON --- */
+        .home-btn {
+            position: absolute; top: 20px; left: 20px;
+            text-decoration: none; color: #555; font-weight: bold;
+            display: flex; align-items: center; gap: 5px;
+            padding: 8px 15px; background: white; border-radius: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1); transition: 0.2s;
+        }
+        .home-btn:hover { color: #ff4d88; transform: translateX(-3px); }
 
         .auth-card {
             background: white;
-            padding: 40px;
+            padding: 30px; /* Reduced padding for compact look */
             width: 100%;
-            max-width: 400px;
+            max-width: 380px; /* Slightly tighter width */
             border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08); /* Soft shadow */
-            border-top: 5px solid #ff4d88; /* SkyBook Pink Accent */
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            border-top: 5px solid #ff4d88;
             text-align: center;
+            position: relative;
         }
 
-        h2 { color: #333; margin-bottom: 25px; font-weight: 800; font-size: 28px; }
+        h2 { color: #333; margin-bottom: 20px; font-weight: 800; font-size: 26px; }
         
-        .input-group { margin-bottom: 20px; text-align: left; }
-        label { display: block; font-size: 12px; font-weight: bold; color: #555; margin-bottom: 5px; text-transform: uppercase; }
+        .input-group { margin-bottom: 15px; text-align: left; }
+        label { display: block; font-size: 11px; font-weight: bold; color: #555; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
         
         input {
-            width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px;
-            font-size: 14px; box-sizing: border-box; transition: 0.2s;
+            width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 8px;
+            font-size: 14px; box-sizing: border-box; transition: 0.2s; background: #f9f9f9;
         }
-        input:focus { border-color: #ff4d88; outline: none; }
+        input:focus { border-color: #ff4d88; outline: none; background: #fff; }
 
         .btn-primary {
-            width: 100%; padding: 14px; background: #ff4d88; color: white;
+            width: 100%; padding: 12px; background: #ff4d88; color: white;
             border: none; border-radius: 8px; font-weight: bold; font-size: 16px;
             cursor: pointer; transition: 0.2s; margin-top: 10px;
         }
         .btn-primary:hover { background: #e63e75; transform: translateY(-2px); }
         
-        .toggle-text { margin-top: 20px; font-size: 14px; color: #666; }
+        .toggle-text { margin-top: 20px; font-size: 13px; color: #666; }
         .toggle-text span { color: #ff4d88; font-weight: bold; cursor: pointer; text-decoration: underline; }
         
         .hidden { display: none; }
@@ -51,16 +61,18 @@
 </head>
 <body>
 
+    <a href="index.html" class="home-btn">← Home</a>
+
     <div class="auth-card" id="loginForm">
-        <h2>SkyBook Login ✈️</h2>
+        <h2>Welcome Back</h2>
         
         <div class="input-group">
             <label>Email Address</label>
-            <input type="email" id="l_email" placeholder="user@example.com">
+            <input type="email" id="l_email" placeholder="Enter your email">
         </div>
         <div class="input-group">
             <label>Password</label>
-            <input type="password" id="l_password" placeholder="••••••">
+            <input type="password" id="l_password" placeholder="Enter password">
         </div>
 
         <button class="btn-primary" id="loginBtn" onclick="handleLogin()">Log In</button>
@@ -71,19 +83,19 @@
     </div>
 
     <div class="auth-card hidden" id="signupForm">
-        <h2>Join SkyBook 🚀</h2>
+        <h2>Create Account</h2>
         
         <div class="input-group">
             <label>Full Name</label>
-            <input type="text" id="s_name" placeholder="John Doe">
+            <input type="text" id="s_name" placeholder="Enter full name">
         </div>
         <div class="input-group">
             <label>Email Address</label>
-            <input type="email" id="s_email" placeholder="user@example.com">
+            <input type="email" id="s_email" placeholder="Enter valid email">
         </div>
         <div class="input-group">
             <label>Phone</label>
-            <input type="text" id="s_phone" placeholder="9876543210">
+            <input type="text" id="s_phone" placeholder="Mobile number">
         </div>
         <div class="input-group">
             <label>Date of Birth</label>
@@ -91,7 +103,7 @@
         </div>
         <div class="input-group">
             <label>Password</label>
-            <input type="password" id="s_password" placeholder="Create a password">
+            <input type="password" id="s_password" placeholder="Create strong password">
         </div>
 
         <button class="btn-primary" id="signupBtn" onclick="handleSignup()">Sign Up</button>
@@ -102,7 +114,6 @@
     </div>
 
     <script>
-        // CHANGE TO YOUR RENDER URL
         const API = "https://flight-backend-d2cb.onrender.com"; 
 
         window.onload = () => {
@@ -132,7 +143,7 @@
 
             if(!payload.name || !payload.email || !payload.password) return alert("Please fill all fields");
 
-            btn.innerText = "Creating Account..."; btn.disabled = true;
+            btn.innerText = "Creating..."; btn.disabled = true;
 
             try {
                 const res = await fetch(`${API}/auth/signup`, {
@@ -158,7 +169,7 @@
 
             if(!email || !password) return alert("Please enter credentials");
 
-            btn.innerText = "Logging in..."; btn.disabled = true;
+            btn.innerText = "Processing..."; btn.disabled = true;
 
             try {
                 const res = await fetch(`${API}/auth/login`, {
@@ -169,19 +180,14 @@
                 const data = await res.json();
 
                 if(res.ok) {
-                    // Success: Save user and redirect to SEARCH PAGE
                     localStorage.setItem("userEmail", data.email);
                     localStorage.setItem("userName", data.name);
                     localStorage.setItem("loggedUser", data.email); 
-                    
-                    window.location.href = "search.html"; // <-- FIX: Redirect to Search
+                    window.location.href = "search.html"; 
                 } else {
-                    alert(data.detail || "Invalid Email or Password");
+                    alert(data.detail || "Invalid Credentials");
                 }
-            } catch(e) { 
-                console.error(e);
-                alert("Server Connection Error"); 
-            }
+            } catch(e) { console.error(e); alert("Connection Error"); }
             btn.innerText = "Log In"; btn.disabled = false;
         }
     </script>

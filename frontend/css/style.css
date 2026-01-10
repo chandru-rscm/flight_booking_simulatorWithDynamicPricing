@@ -485,37 +485,41 @@ td {
 }
 
 /* --- SEAT PRICE TOOLTIP --- */
+/* --- FIXED SEAT PRICE TOOLTIP --- */
 .seat {
-    position: relative; /* Required for the tooltip to sit relative to the seat */
+    position: relative;
 }
 
 .seat:hover::after {
-    content: attr(data-price); /* Grabs the price calculated in JS */
+    content: attr(data-price);
     position: absolute;
-    bottom: 120%; /* Pushes it above the seat */
+    bottom: 125%;          /* Moves it higher up */
     left: 50%;
-    transform: translateX(-50%); /* Centers it */
-    background: #333;
-    color: #fff;
-    padding: 5px 10px;
-    border-radius: 6px;
-    font-size: 12px;
+    transform: translateX(-50%);
+    
+    /* VISIBILITY FIXES */
+    background: #000000;   /* Pure black background */
+    color: #ffffff;        /* Pure white text */
+    font-size: 14px;       /* Larger text */
     font-weight: bold;
+    padding: 8px 12px;     /* More breathing room */
+    border-radius: 6px;
     white-space: nowrap;
-    z-index: 100;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-    pointer-events: none; /* Prevents flickering */
+    z-index: 1000;         /* Ensures it sits on top of everything */
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    pointer-events: none;
+    min-width: 60px;       /* Forces the box to have width even if text lags */
+    text-align: center;
 }
 
-/* Optional: Add a little arrow pointing down */
+/* Optional Arrow */
 .seat:hover::before {
     content: '';
     position: absolute;
-    bottom: 100%;
+    bottom: 110%;
     left: 50%;
     transform: translateX(-50%);
-    border-width: 6px;
-    border-style: solid;
-    border-color: #333 transparent transparent transparent;
-    z-index: 100;
+    border: 6px solid transparent;
+    border-top-color: #000000;
+    z-index: 1000;
 }
