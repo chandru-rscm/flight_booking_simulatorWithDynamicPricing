@@ -32,18 +32,20 @@ def startup_event():
     seed_data()
 
 # --- EMAIL CONFIGURATION ---
+# --- EMAIL CONFIGURATION (UPDATED) ---
 conf = ConnectionConfig(
     MAIL_USERNAME = "chandramohanrs218@gmail.com",
-    MAIL_PASSWORD = "xfkc woat qdho ymzh", 
+    MAIL_PASSWORD = "xfkc woat qdho ymzh",  # Make sure this is your 16-digit App Password
     MAIL_FROM = "chandramohanrs218@gmail.com",
-    MAIL_PORT = 587,
+    MAIL_PORT = 465,             # CHANGED: 587 -> 465
     MAIL_SERVER = "smtp.gmail.com",
-    MAIL_STARTTLS = True,
-    MAIL_SSL_TLS = False,
+    MAIL_STARTTLS = False,       # CHANGED: True -> False
+    MAIL_SSL_TLS = True,         # CHANGED: False -> True
     USE_CREDENTIALS = True,
-    VALIDATE_CERTS = True
+    VALIDATE_CERTS = True,
+    # Optional: Increase timeout if the server is still slow
+    TIMEOUT = 30 
 )
-
 # ==========================================
 # AUTH ROUTES
 # ==========================================
