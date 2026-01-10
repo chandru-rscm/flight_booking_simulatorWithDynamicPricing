@@ -3,3 +3,7 @@ uvicorn
 sqlalchemy
 pydantic
 python-multipart
+fastapi-mail
+pydantic-settings
+passlib
+bcrypt

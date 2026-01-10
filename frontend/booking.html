@@ -2,150 +2,155 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Select Seats | SkyBook</title>
     <link rel="stylesheet" href="css/style.css">
     <style>
-        .booking-layout {
-            height: auto;
-            min-height: 85vh;
-            padding-top: 100px;
-            padding-bottom: 60px;
+        /* --- LAYOUT --- */
+        .booking-wrapper {
             display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
+            gap: 40px;
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+            align-items: flex-start;
+        }
+        
+        /* --- LEFT: PASSENGER FORM --- */
+        .passenger-section {
+            flex: 1;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
         }
 
-        /* --- VISUAL SEAT MAP STYLES --- */
-        .seat-map-container {
-            background: #fff;
+        .passenger-card {
+            background: #f8fafc;
             padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-            margin-bottom: 25px;
-            text-align: center;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #e2e8f0;
+            transition: 0.3s;
+            position: relative;
+        }
+        .passenger-card:hover { border-color: #ff4d88; }
+        .passenger-number {
+            position: absolute; right: 10px; top: 10px;
+            font-size: 50px; color: #f1f5f9; font-weight: 800; z-index: 0; pointer-events: none;
         }
 
-        .plane-fuselage {
-            display: inline-block;
-            background: #f3f4f6;
-            padding: 30px 20px;
-            border-radius: 40px 40px 10px 10px;
-            border: 2px solid #e5e7eb;
+        /* --- RIGHT: SEAT MAP --- */
+        .seat-section {
+            flex: 1.2;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            text-align: center;
             position: relative;
-            transition: all 0.3s ease;
+        }
+
+        /* Plane Visuals */
+        .plane-body {
+            background: #f8fafc;
+            padding: 80px 50px 50px 50px;
+            border-radius: 150px 150px 30px 30px; /* More rounded nose */
+            border: 4px solid #cbd5e1;
+            display: inline-block;
+            position: relative;
+            box-shadow: inset 0 0 30px rgba(0,0,0,0.05);
         }
 
         .cockpit {
-            height: 40px;
-            width: 80%;
-            background: #cbd5e1;
-            margin: 0 auto 30px auto;
-            border-radius: 50% 50% 0 0;
-            opacity: 0.5;
+            position: absolute;
+            top: 30px; left: 50%; transform: translateX(-50%);
+            width: 70px; height: 35px;
+            background: linear-gradient(180deg, #334155, #64748b);
+            border-radius: 40px 40px 10px 10px;
+            border: 2px solid #1e293b;
+            opacity: 0.8;
         }
 
-        /* DYNAMIC GRID: Can change between 3-3 and 2-2 */
+        .wing-left, .wing-right {
+            position: absolute; top: 180px; width: 120px; height: 200px;
+            background: #e2e8f0; border: 3px solid #cbd5e1; z-index: 0;
+        }
+        .wing-left { left: -110px; border-radius: 20px 0 0 80%; transform: skewY(15deg); }
+        .wing-right { right: -110px; border-radius: 0 20px 80% 0; transform: skewY(-15deg); }
+
+        /* Seat Grid */
         .seats-grid {
-            display: grid;
-            gap: 8px;
-            align-items: center;
-            /* Default Economy Layout (3 - Spacer - 3) */
-            grid-template-columns: repeat(3, 1fr) 30px repeat(3, 1fr);
+            display: grid; gap: 12px; justify-content: center;
+            position: relative; z-index: 1;
         }
-
-        /* Individual Seat */
+        
+        /* --- SEAT STYLING (CRITICAL FIXES) --- */
         .seat {
-            width: 35px;
-            height: 40px;
-            background: #e0e7ff; /* Economy Blue */
-            border-radius: 8px 8px 12px 12px;
+            width: 45px; height: 55px;
+            background: #cbd5e1; /* Default Grey */
+            border-radius: 8px 8px 15px 15px;
             cursor: pointer;
-            position: relative;
-            transition: all 0.2s;
-            font-size: 10px;
-            color: #555;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            border: 1px solid #c7d2fe;
+            font-size: 11px; color: #555;
+            display: flex; align-items: center; justify-content: center;
+            transition: 0.2s; position: relative; font-weight: bold;
+            box-shadow: 0 4px 0 #94a3b8;
+        }
+        
+        .seat::before { /* Headrest */
+            content: ''; position: absolute; top: -5px; width: 80%; height: 12px;
+            background: inherit; border-radius: 4px; opacity: 0.8;
         }
 
-        .seat:hover { background: #818cf8; color: white; transform: scale(1.1); }
-
-        /* Business Class Seat Styling */
-        .seat.business {
-            background: #fef3c7; /* Gold */
-            border-color: #f59e0b;
-            color: #b45309;
-            width: 50px; /* Wider */
-            height: 50px; /* Bigger */
-        }
-        .seat.business:hover { background: #f59e0b; color: white; }
-
-        /* Seat States */
-        .seat.selected {
-            background: #ff4d88 !important;
-            color: white !important;
-            border-color: #ff4d88 !important;
-            box-shadow: 0 0 10px rgba(255, 77, 136, 0.4);
-            transform: scale(1.1);
-        }
-
+        .seat:hover { transform: translateY(-2px); filter: brightness(1.1); }
+        .seat:active { transform: translateY(2px); box-shadow: 0 1px 0 #94a3b8; }
+        
+        /* 1. OCCUPIED */
         .seat.occupied {
-            background: #e5e7eb !important;
-            color: #bbb !important;
-            cursor: not-allowed;
-            border-color: #d1d5db !important;
+            background: #e2e8f0; color: #ccc; cursor: not-allowed;
+            box-shadow: none; opacity: 0.6;
         }
-        .seat.occupied:hover { transform: none; }
 
-        /* The Aisle */
-        .aisle-spacer { grid-column: auto; } /* Let JS handle column placement */
+        /* 2. BUSINESS CLASS (Base Style) */
+        .seat.business {
+            width: 60px; height: 65px;
+            background: #fcd34d; /* Gold */
+            color: #78350f;
+            box-shadow: 0 4px 0 #d97706;
+        }
+
+        /* 3. SELECTED (ECONOMY) - Defined AFTER to override */
+        .seat.selected {
+            background: #ff4d88 !important; /* Force Pink */
+            color: white !important;
+            box-shadow: 0 4px 0 #be123c !important;
+            transform: scale(1.05);
+        }
+
+        /* 4. SELECTED (BUSINESS) - Specific Override for Premium Look */
+        .seat.business.selected {
+            background: #ea580c !important; /* Dark Orange/Red */
+            color: white !important;
+            box-shadow: 0 4px 0 #9a3412 !important;
+        }
+
+        /* Tooltip */
+        .seat:hover::after {
+            content: attr(data-price);
+            position: absolute; bottom: 120%; left: 50%; transform: translateX(-50%);
+            background: #1e293b; color: white; padding: 5px 10px;
+            border-radius: 6px; font-size: 11px; white-space: nowrap; z-index: 10;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        .aisle { width: 30px; }
 
         /* Legend */
-        .legend { display: flex; justify-content: center; gap: 15px; margin-top: 15px; font-size: 12px; color: #666; }
-        .dot { width: 12px; height: 12px; display: inline-block; border-radius: 3px; margin-right: 5px; }
-        .dot-avail { background: #e0e7ff; border: 1px solid #c7d2fe; }
-        .dot-biz { background: #fef3c7; border: 1px solid #f59e0b; }
-        .dot-select { background: #ff4d88; }
-
-        /* --- TOGGLE SWITCH CSS --- */
-        .class-toggle-container {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 20px;
-            background: #f3f4f6;
-            padding: 5px;
-            border-radius: 30px;
-            width: fit-content;
-            margin-left: auto;
-            margin-right: auto;
-            border: 1px solid #e5e7eb;
+        .legend-box {
+            display: flex; gap: 20px; justify-content: center; 
+            margin-top: 25px; font-size: 13px; color: #64748b;
+            background: #f8fafc; padding: 15px; border-radius: 12px;
         }
-        
-        .class-option {
-            padding: 8px 20px;
-            border-radius: 25px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 600;
-            color: #666;
-            transition: all 0.3s;
-        }
-
-        .class-option.active {
-            background: #fff;
-            color: #333;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        
-        .class-option.active.biz-active {
-            background: #fef3c7;
-            color: #b45309;
-        }
+        .dot { width: 14px; height: 14px; border-radius: 4px; display: inline-block; margin-right: 6px; vertical-align: middle; }
 
     </style>
 </head>
@@ -153,79 +158,70 @@
 
     <div class="navbar">
         <h2>SkyBook ✈️</h2>
-        <a href="search.html">Back to Search</a>
+        <a href="search.html" style="color: #666; font-weight: 600; text-decoration: none;">← Back to Search</a>
     </div>
 
-    <div class="plane-container"><div class="plane-icon">✈️</div></div>
-    <div class="cloud one"></div>
-    <div class="cloud two"></div>
+    <div style="text-align: center; margin-top: 30px;">
+        <h1 style="color: #1e293b; margin: 0;">Select Seats</h1>
+        <p style="color: #64748b; margin-top: 5px;" id="flightRouteDisplay">Loading Flight...</p>
+    </div>
 
-    <div class="hero-section booking-layout">
-        <div class="hero-content" style="max-width: 900px; width: 95%; display: flex; gap: 30px; flex-wrap: wrap; justify-content: center; align-items: flex-start;">
+    <div class="booking-wrapper">
+        
+        <div class="passenger-section">
+            <h3 style="color: #ff4d88; border-bottom: 2px solid #f1f5f9; padding-bottom: 15px; margin-top: 0;">1. Travelers</h3>
             
-            <div style="flex: 1; min-width: 300px;">
-                <h2 style="text-align: center; color: #333; margin-bottom: 15px;">Choose Your Seat</h2>
+            <div id="passengersContainer"></div>
+
+            <button onclick="addPassengerForm()" style="background: #e2e8f0; color: #333; padding: 14px; border: none; border-radius: 10px; cursor: pointer; font-weight: 700; width: 100%; margin-top: 15px; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                <span>+</span> Add Another Traveler
+            </button>
+        </div>
+
+        <div class="seat-section">
+            <h3 style="color: #ff4d88; border-bottom: 2px solid #f1f5f9; padding-bottom: 15px; margin-top: 0;">2. Cabin Map</h3>
+            
+            <div style="background: #f1f5f9; padding: 6px; border-radius: 40px; display: inline-flex; margin-bottom: 20px; border: 1px solid #e2e8f0;">
+                <button id="btnEco" onclick="setSeatClass('economy')" style="padding: 10px 30px; border-radius: 30px; border: none; cursor: pointer; background: #fff; color: #333; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.05); transition: 0.3s;">Economy</button>
+                <button id="btnBiz" onclick="setSeatClass('business')" style="padding: 10px 30px; border-radius: 30px; border: none; cursor: pointer; background: transparent; color: #666; font-weight: bold; transition: 0.3s;">Business</button>
+            </div>
+
+            <div style="position: relative; margin-top: 20px;">
+                <div class="wing-left"></div>
+                <div class="wing-right"></div>
                 
-                <div class="class-toggle-container">
-                    <div id="btnEconomy" class="class-option active" onclick="toggleClass('economy')">Economy</div>
-                    <div id="btnBusiness" class="class-option" onclick="toggleClass('business')">Business</div>
-                </div>
-
-                <div class="seat-map-container">
-                    <div class="plane-fuselage">
-                        <div class="cockpit"></div>
-                        <div class="seats-grid" id="seatsGrid">
-                            </div>
-                    </div>
-                    
-                    <div class="legend">
-                        <div><span class="dot dot-avail"></span>Economy</div>
-                        <div><span class="dot dot-biz"></span>Business</div>
-                        <div><span class="dot dot-select"></span>Selected</div>
-                    </div>
+                <div class="plane-body">
+                    <div class="cockpit"></div>
+                    <div class="seats-grid" id="seatMap">
+                        </div>
                 </div>
             </div>
 
-            <div style="flex: 1; min-width: 300px; max-width: 400px;">
-                <div class="glass-card" style="background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.08);">
-                    <h3 style="margin-bottom: 20px; color: #ff4d88;">Flight Summary</h3>
-
-                    <div id="weatherWidget" style="background: #e0f2fe; color: #0369a1; padding: 10px; border-radius: 8px; font-size: 13px; margin-bottom: 15px; display: none; align-items: center; gap: 10px;">
-                        <span id="weatherIcon" style="font-size: 20px;">🌤️</span>
-                        <div>
-                            <strong id="weatherCity">City</strong>
-                            <span id="weatherTemp">--°C</span> • <span id="weatherDesc">Loading...</span>
-                        </div>
-                    </div>
-
-                    <div id="flightInfo" style="margin-bottom: 20px;">Loading...</div>
-
-                    <input type="hidden" id="selectedSeatVal">
-
-                    <div style="background: #f9fafb; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
-                        <div style="display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 5px;">
-                            <span style="color:#666;">Class:</span>
-                            <span id="displayClass" style="font-weight: bold; color: #333;">Economy</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 5px;">
-                            <span style="color:#666;">Seat Selected:</span>
-                            <span id="displaySeat" style="font-weight: bold; color: #333;">--</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; font-size: 14px;">
-                            <span style="color:#666;">Surcharge:</span>
-                            <span id="displaySurcharge" style="font-weight: bold; color: green;">₹0</span>
-                        </div>
-                    </div>
-
-                    <label style="font-weight: 600; color: #555; font-size: 13px;">Passenger Name</label>
-                    <input type="text" id="passengerName" placeholder="Name on ID" style="width: 100%; padding: 12px; margin: 5px 0 20px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box;">
-
-                    <button id="confirmBooking" class="primary-btn" style="width: 100%;" disabled>
-                        Select a Seat first
-                    </button>
-                </div>
+            <div class="legend-box">
+                <div><span class="dot" style="background:#cbd5e1; box-shadow: 0 2px 0 #94a3b8;"></span>Standard</div>
+                <div><span class="dot" style="background:#fcd34d; box-shadow: 0 2px 0 #d97706;"></span>Business</div>
+                <div><span class="dot" style="background:#ff4d88; box-shadow: 0 2px 0 #be123c;"></span>Selected</div>
+                <div><span class="dot" style="background:#e2e8f0;"></span>Occupied</div>
             </div>
 
+            <div style="margin-top: 30px; background: #f8fafc; padding: 25px; border-radius: 16px; border: 1px solid #e2e8f0;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 10px; color: #64748b;">
+                    <span>Base Fare (x<span id="pCount">1</span>)</span>
+                    <span id="baseFareDisplay">₹0</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 15px; color: #ea580c;">
+                    <span>Surcharges (Window/Aisle)</span>
+                    <span id="surchargeDisplay">₹0</span>
+                </div>
+                <hr style="border: 0; border-top: 2px dashed #e2e8f0; margin-bottom: 15px;">
+                <div style="display: flex; justify-content: space-between; font-weight: 800; font-size: 26px; color: #0f172a;">
+                    <span>Total</span>
+                    <span id="totalFareDisplay">₹0</span>
+                </div>
+                <button id="payButton" onclick="confirmBooking()" disabled style="width: 100%; padding: 18px; background: #cbd5e1; color: white; border: none; border-radius: 12px; margin-top: 20px; font-size: 18px; font-weight: bold; cursor: not-allowed; transition: 0.3s;">
+                    Select Seats
+                </button>
+            </div>
         </div>
     </div>
 

@@ -2,303 +2,345 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Payment & Ticket | SkyBook</title>
     <link rel="stylesheet" href="css/style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
-        /* Payment Page Styles */
-        .payment-container {
-            max-width: 500px;
-            margin: 80px auto;
-            background: rgba(255, 255, 255, 0.9);
-            padding: 30px;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            text-align: center;
-            backdrop-filter: blur(10px);
+        /* --- LAYOUT & WRAPPER --- */
+        .payment-wrapper { 
+            max-width: 1000px; 
+            margin: 50px auto; 
+            display: flex; 
+            gap: 30px; 
+            align-items: flex-start;
+            padding: 0 20px;
         }
+        
+        /* --- LEFT: SUMMARY CARD --- */
+        .summary-card { 
+            flex: 1; 
+            background: white; 
+            padding: 30px; 
+            border-radius: 16px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05); 
+            border-top: 5px solid #ff4d88;
+        }
+        .summary-row { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 14px; color: #555; }
+        .total-row { display: flex; justify-content: space-between; font-size: 22px; font-weight: 800; color: #333; margin-top: 15px; }
 
-        .input-group {
-            margin-bottom: 15px;
-            text-align: left;
+        /* --- RIGHT: PAYMENT METHODS --- */
+        .payment-methods { 
+            flex: 1.8; 
+            background: white; 
+            padding: 30px; 
+            border-radius: 16px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05); 
         }
-        .input-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 600;
-            color: #555;
-            font-size: 13px;
+        
+        /* TABS for Payment Modes */
+        .tabs { display: flex; gap: 10px; margin-bottom: 25px; border-bottom: 1px solid #eee; padding-bottom: 15px; }
+        .tab-btn {
+            background: none; border: none; font-size: 14px; font-weight: 600; color: #777; cursor: pointer; padding: 10px 15px; border-radius: 8px; transition: 0.3s;
         }
-        .input-group input {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            box-sizing: border-box;
-            font-size: 14px;
-        }
+        .tab-btn:hover { background: #f9f9f9; color: #333; }
+        .tab-btn.active { background: #fff0f5; color: #ff4d88; font-weight: 800; }
 
-        /* --- BOARDING PASS DESIGN (Hidden initially) --- */
-        #ticketArea {
+        /* INPUT STYLES */
+        .input-group { margin-bottom: 15px; }
+        .input-label { display: block; font-size: 12px; font-weight: 700; color: #333; margin-bottom: 5px; text-transform: uppercase; }
+        input, select { 
+            width: 100%; padding: 14px; border: 1px solid #e2e8f0; border-radius: 8px; box-sizing: border-box; font-size: 15px; transition: 0.2s;
+        }
+        input:focus, select:focus { border-color: #ff4d88; outline: none; box-shadow: 0 0 0 3px rgba(255, 77, 136, 0.1); }
+
+        .row-inputs { display: flex; gap: 15px; }
+        
+        /* PAYMENT BUTTON */
+        .pay-action-btn { 
+            width: 100%; padding: 16px; background: #ff4d88; color: white; border: none; border-radius: 10px; 
+            font-size: 18px; font-weight: bold; cursor: pointer; margin-top: 25px; transition: 0.2s; box-shadow: 0 5px 15px rgba(255, 77, 136, 0.3);
+        }
+        .pay-action-btn:hover { background: #e63e75; transform: translateY(-2px); }
+        .pay-action-btn:disabled { background: #ccc; cursor: not-allowed; transform: none; box-shadow: none; }
+
+        .secure-badge { text-align: center; margin-top: 15px; font-size: 12px; color: #888; display: flex; align-items: center; justify-content: center; gap: 5px; }
+
+        .hidden { display: none; }
+
+        /* --- TICKET STYLES --- */
+        #ticketContainer {
+            max-width: 750px; margin: 30px auto; background: #ffffff; 
+            border: 2px solid #333; font-family: 'Courier New', Courier, monospace; color: #000;
             display: none; /* Hidden until payment success */
-            max-width: 600px;
-            margin: 20px auto;
-            background: #fff;
-            border-radius: 16px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-            overflow: hidden;
-            border: 1px solid #eee;
         }
-
-        .ticket-header {
-            background: linear-gradient(135deg, #ff4d88, #ff8fb1);
-            color: white;
-            padding: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .ticket-body {
-            padding: 25px;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .ticket-info label {
-            display: block;
-            font-size: 10px;
-            color: #888;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 2px;
-        }
-        .ticket-info p {
-            margin: 0 0 15px 0;
-            font-weight: bold;
-            font-size: 16px;
-            color: #333;
-        }
-
-        .barcode {
-            height: 40px;
-            background: repeating-linear-gradient(
-                90deg,
-                #333,
-                #333 2px,
-                #fff 2px,
-                #fff 4px
-            );
-            margin-top: 10px;
-            width: 100%;
-        }
-
-        /* Animations */
-        @keyframes popIn {
-            0% { transform: scale(0.8); opacity: 0; }
-            100% { transform: scale(1); opacity: 1; }
-        }
+        .ticket-header { background: #333; color: white; padding: 20px; display: flex; justify-content: space-between; align-items: center; }
+        .ticket-body { padding: 30px; background: #fff; }
+        .info-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        .info-table td { padding: 8px 0; vertical-align: top; }
+        .label { font-size: 10px; color: #666; text-transform: uppercase; display: block; margin-bottom: 2px; }
+        .val { font-size: 16px; font-weight: bold; color: #000; }
+        .highlight { color: #ff4d88; font-size: 20px; }
+        .p-table { width: 100%; border-top: 2px dashed #ccc; margin-top: 10px; }
+        .p-table th { text-align: left; font-size: 11px; color: #555; padding: 10px 0 5px 0; }
+        .p-table td { padding: 8px 0; font-size: 14px; font-weight: bold; border-bottom: 1px solid #eee; }
     </style>
 </head>
 <body>
-
     <div class="navbar">
         <h2>SkyBook ✈️</h2>
+        <a href="search.html" style="text-decoration:none; color:#555;">Cancel</a>
     </div>
 
-    <div class="plane-container"><div class="plane-icon">✈️</div></div>
-    <div class="cloud one"></div>
-    <div class="cloud two"></div>
+    <div class="payment-wrapper" id="paymentSection">
+        
+        <div class="summary-card">
+            <h3 style="margin-top:0; color:#333;">Flight Summary</h3>
+            <div class="summary-row"><span>Flight</span><strong id="sumFlight">--</strong></div>
+            <div class="summary-row"><span>Route</span><strong id="sumRoute">--</strong></div>
+            <div class="summary-row"><span>Passengers</span><strong id="sumPassCount">--</strong></div>
+            <div class="summary-row"><span>Seats</span><strong id="sumSeats" style="color:#ff4d88">--</strong></div>
+            <div class="summary-row"><span>Date</span><strong id="sumDate">--</strong></div>
+            <hr style="border:0; border-top:1px dashed #ddd; margin: 20px 0;">
+            <div class="total-row">
+                <span>Total Due</span>
+                <span id="sumAmount">₹0</span>
+            </div>
+        </div>
 
-    <div id="paymentSection" class="payment-container">
-        <h2 style="color: #333;">Confirm Payment</h2>
-        <p style="color: #666; font-size: 14px; margin-bottom: 20px;">
-            PNR: <strong id="dispPnr">--</strong> | Amount: <strong id="dispPrice" style="color: #ff4d88;">--</strong>
+        <div class="payment-methods">
+            <h2 style="margin-top:0; font-size:24px;">Payment Details</h2>
+            <p style="color:#666; font-size:14px; margin-bottom:20px;">Complete your purchase by providing your payment details.</p>
+
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchMethod('card')">💳 Credit/Debit Card</button>
+                <button class="tab-btn" onclick="switchMethod('upi')">📱 UPI / GPay</button>
+                <button class="tab-btn" onclick="switchMethod('net')">🏦 Net Banking</button>
+            </div>
+
+            <div id="form-card">
+                <div class="input-group">
+                    <label class="input-label">Card Number</label>
+                    <input type="text" placeholder="0000 0000 0000 0000" maxlength="19" id="cardNum">
+                </div>
+                <div class="input-group">
+                    <label class="input-label">Card Holder Name</label>
+                    <input type="text" placeholder="Name on Card">
+                </div>
+                <div class="row-inputs">
+                    <div class="input-group" style="flex:1">
+                        <label class="input-label">Expiry Date</label>
+                        <input type="text" placeholder="MM / YY" maxlength="5">
+                    </div>
+                    <div class="input-group" style="flex:1">
+                        <label class="input-label">CVV / CVC</label>
+                        <input type="password" placeholder="123" maxlength="3">
+                    </div>
+                </div>
+            </div>
+
+            <div id="form-upi" class="hidden">
+                <div class="input-group">
+                    <label class="input-label">UPI ID / VPA</label>
+                    <input type="text" placeholder="username@oksbi">
+                </div>
+                <p style="font-size:12px; color:#666; margin-top:10px;">
+                    Google Pay, PhonePe, Paytm, and BHIM are supported.
+                </p>
+            </div>
+
+            <div id="form-net" class="hidden">
+                <div class="input-group">
+                    <label class="input-label">Select Bank</label>
+                    <select>
+                        <option>HDFC Bank</option>
+                        <option>State Bank of India (SBI)</option>
+                        <option>ICICI Bank</option>
+                        <option>Axis Bank</option>
+                        <option>Kotak Mahindra Bank</option>
+                    </select>
+                </div>
+            </div>
+
+            <button id="payBtn" class="pay-action-btn" onclick="processPayment()">
+                Pay Securely
+            </button>
+            
+            <div class="secure-badge">
+                🔒 256-bit SSL Secure Payment
+            </div>
+        </div>
+    </div>
+
+    <div id="successSection" class="hidden" style="text-align: center; padding: 50px 20px;">
+        <div style="font-size: 60px;">🎉</div>
+        <h1 style="color: #059669; font-size: 32px; margin: 10px 0;">Booking Confirmed!</h1>
+        
+        <p style="color: #333; font-size: 16px; margin-bottom: 5px;">
+            Thank you for booking with SkyBook.
+        </p>
+        <p style="color: #666; font-size: 14px; margin-bottom: 30px;">
+            ✅ A confirmation email has been sent to your registered email.<br>
         </p>
 
-        <div class="input-group">
-            <label>Card Number</label>
-            <input type="text" placeholder="0000 0000 0000 0000" maxlength="19">
-        </div>
-        <div style="display: flex; gap: 15px;">
-            <div class="input-group" style="flex: 1;">
-                <label>Expiry</label>
-                <input type="text" placeholder="MM/YY" maxlength="5">
+        <div id="ticketContainer">
+            <div class="ticket-header">
+                <h2>SKYBOOK AIR</h2>
+                <span>BOARDING PASS</span>
             </div>
-            <div class="input-group" style="flex: 1;">
-                <label>CVV</label>
-                <input type="password" placeholder="123" maxlength="3">
+            <div class="ticket-body">
+                <table class="info-table">
+                    <tr>
+                        <td><span class="label">PNR</span><span class="val highlight" id="tPnr">--</span></td>
+                        <td><span class="label">Date</span><span class="val" id="tDate">--</span></td>
+                        <td style="text-align: right;"><span class="label">Time</span><span class="val" id="tTime">--</span></td>
+                    </tr>
+                    <tr>
+                        <td><span class="label">Origin</span><span class="val" id="tOrigin">--</span></td>
+                        <td style="font-size: 20px; text-align: center;">✈</td>
+                        <td style="text-align: right;"><span class="label">Destination</span><span class="val" id="tDest">--</span></td>
+                    </tr>
+                </table>
+                
+                <div style="font-size: 12px; font-weight: bold; margin-top: 10px;">PASSENGER DETAILS</div>
+                <table class="p-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 70%;">NAME</th>
+                            <th style="text-align: right;">SEAT</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pListBody"></tbody>
+                </table>
+
+                <div style="margin-top: 20px; text-align: right; border-top: 2px solid #333; padding-top: 10px;">
+                    <span class="label">TOTAL PAID</span>
+                    <span class="val" id="tPrice">--</span>
+                </div>
             </div>
         </div>
 
-        <button id="payBtn" class="primary-btn" style="width: 100%; margin-top: 10px;">
-            Pay Securely
-        </button>
-    </div>
-
-    <div id="successSection" style="display: none; padding-top: 80px; text-align: center;">
-        <div style="animation: popIn 0.5s ease forwards;">
-            <div style="font-size: 50px;">🎉</div>
-            <h2 style="color: #333; margin: 10px 0;">Booking Confirmed!</h2>
-            <p style="color: #666;">Your ticket is ready.</p>
+        <div style="margin-top: 30px; display: flex; justify-content: center; gap: 20px; align-items: center; flex-wrap: wrap;">
             
-            <div id="ticketArea">
-                <div class="ticket-header">
-                    <h3 style="margin:0;">SkyBook Air</h3>
-                    <span style="font-size: 12px; background: rgba(255,255,255,0.2); padding: 5px 10px; border-radius: 10px;">BOARDING PASS</span>
-                </div>
-                <div class="ticket-body">
-                    <div style="text-align: left; flex: 1;">
-                        <div class="ticket-info">
-                            <label>Passenger</label>
-                            <p id="ticketName">--</p>
-                        </div>
-                        <div class="ticket-info">
-                            <label>From</label>
-                            <p id="ticketFrom">--</p>
-                        </div>
-                        <div class="ticket-info">
-                            <label>Date</label>
-                            <p id="ticketDate">--</p>
-                        </div>
-                    </div>
+            <button onclick="downloadTicket()" class="pay-action-btn" style="width: auto; margin: 0; padding: 12px 25px; background: #333; box-shadow: none;">
+                ⬇ Download Ticket
+            </button>
+            
+            <a href="mybookings.html" class="pay-action-btn" style="width: auto; margin: 0; padding: 12px 25px; background: #ff4d88; color: white; text-decoration: none; display: flex; align-items: center; justify-content: center;">
+                Go to My Bookings
+            </a>
 
-                    <div style="text-align: right; flex: 1;">
-                        <div class="ticket-info">
-                            <label>Class</label>
-                            <p id="ticketClass">Economy</p>
-                        </div>
-                        <div class="ticket-info">
-                            <label>To</label>
-                            <p id="ticketTo">--</p>
-                        </div>
-                        <div class="ticket-info">
-                            <label>Seat</label>
-                            <p id="ticketSeat" style="color: #ff4d88; font-size: 22px;">--</p>
-                        </div>
-                    </div>
-                </div>
-                <div style="padding: 0 25px 25px 25px;">
-                    <div class="ticket-info" style="text-align: center;">
-                        <label>PNR</label>
-                        <p id="ticketPnr" style="margin-bottom: 5px;">--</p>
-                    </div>
-                    <div class="barcode"></div>
-                </div>
-            </div>
-
-            <div style="margin-top: 30px; display: flex; justify-content: center; gap: 15px;">
-                <button onclick="downloadPDF()" class="primary-btn" style="background: #333;">
-                    ⬇ Download PDF
-                </button>
-                <a href="index.html" class="primary-btn" style="background: white; color: #333; border: 1px solid #ddd;">
-                    Go Home
-                </a>
-            </div>
+            <a href="search.html" style="color: #666; text-decoration: underline; font-weight: 600; font-size: 14px;">
+                Book Another Flight
+            </a>
         </div>
+
     </div>
 
     <script>
-        const API_BASE = "https://flight-backend-d2cb.onrender.com";
-        const pnr = localStorage.getItem("pnr");
+        const API = "http://127.0.0.1:8000";
+        const bookingId = localStorage.getItem("temp_booking_id");
+        let details = {};
 
-        if (!pnr) {
-            alert("No booking found.");
-            window.location.href = "index.html";
+        // 1. Fetch Booking Details
+        document.addEventListener("DOMContentLoaded", async () => {
+            if(!bookingId) { alert("No booking found"); window.location.href="search.html"; return; }
+
+            try {
+                const res = await fetch(`${API}/booking/id/${bookingId}`);
+                if(!res.ok) throw new Error("API Error");
+                
+                details = await res.json();
+                
+                // Update Summary UI
+                document.getElementById("sumFlight").innerText = details.flight_number;
+                const route = details.origin.split('(')[0] + " ➝ " + details.destination.split('(')[0];
+                document.getElementById("sumRoute").innerText = route;
+                document.getElementById("sumPassCount").innerText = details.passenger_count;
+                document.getElementById("sumSeats").innerText = details.seats;
+                document.getElementById("sumDate").innerText = details.travel_date;
+                document.getElementById("sumAmount").innerText = "₹" + details.amount;
+                document.getElementById("payBtn").innerText = `Pay ₹${details.amount}`;
+
+            } catch(e) { alert("Error loading booking details"); }
+        });
+
+        // 2. Tab Switcher
+        function switchMethod(m) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('form-card').classList.add('hidden');
+            document.getElementById('form-upi').classList.add('hidden');
+            document.getElementById('form-net').classList.add('hidden');
+            
+            event.target.classList.add('active');
+            document.getElementById(`form-${m}`).classList.remove('hidden');
         }
 
-        // 1. Load Booking Data on Page Load
-        async function loadBooking() {
+        // 3. Card Formatting
+        document.getElementById('cardNum').addEventListener('input', function (e) {
+            e.target.value = e.target.value.replace(/[^\d]/g, '').replace(/(.{4})/g, '$1 ').trim();
+        });
+
+        // 4. Process Payment
+        async function processPayment() {
+            const btn = document.getElementById("payBtn");
+            btn.innerText = "Processing Transaction..."; 
+            btn.disabled = true;
+            btn.style.opacity = "0.7";
+
             try {
-                // Fetch details from backend
-                const res = await fetch(`${API_BASE}/booking/${pnr}`);
+                const res = await fetch(`${API}/booking/pay/${bookingId}`, { method: "POST" });
                 const data = await res.json();
 
-                // Fetch Flight details to get Origin/Dest names
-                const fRes = await fetch(`${API_BASE}/flights`);
-                const flights = await fRes.json();
-                const flight = flights.find(f => f.flight_id == data.flight_id);
+                if(data.status === "SUCCESS") {
+                    // Populate Ticket
+                    document.getElementById("tPnr").innerText = data.pnr;
+                    document.getElementById("tDate").innerText = details.travel_date;
+                    document.getElementById("tTime").innerText = details.departure_time;
+                    document.getElementById("tOrigin").innerText = details.origin;
+                    document.getElementById("tDest").innerText = details.destination;
+                    document.getElementById("tPrice").innerText = "₹" + details.amount;
 
-                // --- Update Payment Screen ---
-                document.getElementById("dispPnr").innerText = data.pnr;
-                document.getElementById("dispPrice").innerText = "₹" + data.price;
+                    const names = details.passengers.split(", ");
+                    const seats = details.seats.split(", ");
+                    let html = "";
+                    for(let i=0; i<names.length; i++) {
+                        html += `<tr><td>${names[i]}</td><td style="text-align: right; color: #ff4d88;">${seats[i]}</td></tr>`;
+                    }
+                    document.getElementById("pListBody").innerHTML = html;
 
-                // --- Update Ticket (Hidden) ---
-                document.getElementById("ticketName").innerText = data.passenger;
-                document.getElementById("ticketSeat").innerText = data.seat_no;
-                document.getElementById("ticketPnr").innerText = data.pnr;
-                document.getElementById("ticketDate").innerText = data.travel_date;
-                
-                if (flight) {
-                    document.getElementById("ticketFrom").innerText = flight.origin;
-                    document.getElementById("ticketTo").innerText = flight.destination;
+                    // Switch UI
+                    document.getElementById("paymentSection").classList.add("hidden");
+                    document.getElementById("successSection").classList.remove("hidden");
+                    
+                    // Show Ticket
+                    document.getElementById("ticketContainer").style.display = "block";
+                } else {
+                    alert("Payment Declined. Please try again."); 
+                    btn.disabled = false;
+                    btn.innerText = `Pay ₹${details.amount}`;
+                    btn.style.opacity = "1";
                 }
-
-                // Business Class Logic
-                const rowNum = parseInt(data.seat_no);
-                if (rowNum < 5) {
-                    document.getElementById("ticketClass").innerText = "Business";
-                    document.getElementById("ticketClass").style.color = "#b45309";
-                    document.getElementById("ticketClass").style.fontWeight = "bold";
-                }
-
-            } catch (err) {
-                console.error(err);
-                alert("Error loading booking details");
+            } catch(e) { 
+                alert("Server Error during payment"); 
+                btn.disabled = false;
+                btn.innerText = `Pay ₹${details.amount}`;
+                btn.style.opacity = "1";
             }
         }
 
-        loadBooking();
+        // 5. PDF Download (Existing & Working Logic)
+        function downloadTicket() {
+            const element = document.getElementById("ticketContainer");
+            window.scrollTo(0, 0); // Ensure full visibility for capture
 
-        // 2. Handle Payment Click
-        document.getElementById("payBtn").addEventListener("click", async () => {
-            const btn = document.getElementById("payBtn");
-            btn.innerText = "Processing...";
-            btn.disabled = true;
-
-            // Simulate Network Delay (2 seconds)
-            setTimeout(async () => {
-                try {
-                    const res = await fetch(`${API_BASE}/booking/pay/${pnr}`, { method: "POST" });
-                    const result = await res.json();
-
-                    if (result.payment_status === "CONFIRMED") {
-                        // Switch Views
-                        document.getElementById("paymentSection").style.display = "none";
-                        document.getElementById("successSection").style.display = "block";
-                        // Reveal ticket for viewing (and downloading)
-                        document.getElementById("ticketArea").style.display = "block"; 
-                    } else {
-                        alert("Payment Failed. Try again.");
-                        btn.innerText = "Pay Securely";
-                        btn.disabled = false;
-                    }
-                } catch (e) {
-                    alert("Server Error");
-                }
-            }, 2000);
-        });
-
-        // 3. PDF Download Function
-        function downloadPDF() {
-            // Select the ticket element
-            const element = document.getElementById("ticketArea");
-            
-            // Configuration Options
             const opt = {
-                margin:       10,  // Adds whitespace around the ticket in the PDF
-                filename:     `SkyBook_Ticket_${pnr}.pdf`,
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { 
-                    scale: 2,       // Makes text sharp
-                    useCORS: true,  // Important for external images/fonts
-                    scrollY: 0      // Prevents cutting off bottom
-                },
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                margin: 10,
+                filename: `SkyBook_Ticket_${document.getElementById("tPnr").innerText}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
-            
-            // Generate
+
             html2pdf().set(opt).from(element).save();
         }
     </script>

@@ -7,104 +7,76 @@
     <link rel="stylesheet" href="css/style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
-        .bookings-container {
-            max-width: 800px;
-            margin: 50px auto;
-            padding: 20px;
-        }
-        /* --- BOOKING CARD STYLES --- */
+        .container { max-width: 800px; margin: 40px auto; padding: 20px; }
+        
+        /* --- BOOKING CARD (Clean Style) --- */
         .booking-card {
-            background: rgba(255, 255, 255, 0.65); /* Translucent White */
-            backdrop-filter: blur(12px);            /* Frosted Glass Effect */
-            -webkit-backdrop-filter: blur(12px);    /* Safari Support */
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            border-radius: 20px;
-            padding: 25px;
-            margin-bottom: 25px;
-            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.1); /* Soft shadow */
+            background: white; 
+            padding: 25px; 
+            border-radius: 16px; 
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05); 
+            border-left: 5px solid #ff4d88;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-left: 5px solid #ff4d88;
-            transition: all 0.3s ease;
+            transition: transform 0.2s;
         }
-
-        /* --- HOVER GLOW EFFECT --- */
-        .booking-card:hover { 
-            transform: translateY(-5px) scale(1.01); 
-            background: rgba(255, 255, 255, 0.85);
-            box-shadow: 0 15px 40px rgba(255, 77, 136, 0.25); /* Pink Glow */
-        }
+        .booking-card:hover { transform: translateY(-3px); }
 
         /* --- STATUS BADGES --- */
         .status-badge {
-            background: #d1fae5; /* Default Green (Confirmed) */
-            color: #065f46;
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: bold;
-            display: inline-block;
-            margin-bottom: 10px;
+            background: #d1fae5; color: #065f46; /* Green */
+            padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: bold;
+            display: inline-block; margin-bottom: 10px; text-transform: uppercase;
+        }
+        .status-cancelled { background: #fee2e2; color: #991b1b; } 
+        .status-pending { background: #ffedd5; color: #9a3412; }   
+
+        /* --- BUTTONS --- */
+        .action-area { text-align: right; display: flex; flex-direction: column; gap: 8px; align-items: flex-end; }
+        
+        .btn-ticket {
+            padding: 10px 20px; font-size: 13px; background: #333; color: white; 
+            border: none; border-radius: 8px; cursor: pointer; font-weight: 600;
+        }
+        .btn-ticket:hover { background: #000; }
+
+        .btn-cancel {
+            padding: 8px 15px; font-size: 12px; background: white; color: #ef4444; 
+            border: 1px solid #ef4444; border-radius: 8px; cursor: pointer; font-weight: 600;
+        }
+        .btn-cancel:hover { background: #fee2e2; }
+
+        /* --- TICKET MODAL (Overlay) --- */
+        #ticketModal {
+            display: none; /* Hidden by default */
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); z-index: 10000;
+            justify-content: center; align-items: center;
+            overflow-y: auto;
         }
         
-        .status-cancelled {
-            background: #fee2e2;
-            color: #991b1b;
+        #ticketContent {
+            background: white; width: 700px; padding: 0; 
+            border-radius: 4px; position: relative; margin: 50px auto;
         }
 
-        /* Orange for Pending Payment */
-        .status-pending {
-            background: #ffedd5; /* Light Orange */
-            color: #9a3412;      /* Dark Orange */
+        .close-modal {
+            position: absolute; top: -40px; right: 0; color: white; font-size: 30px; cursor: pointer;
         }
 
-        /* --- FLYING PLANE LOADER ANIMATION --- */
-        .loader-container {
-            text-align: center;
-            padding: 40px;
-            color: #666;
-        }
-        .flying-plane {
-            font-size: 40px;
-            display: inline-block;
-            animation: fly 2s infinite ease-in-out;
-            margin-bottom: 10px;
-        }
-        @keyframes fly {
-            0% { transform: translateX(-20px) translateY(5px) rotate(-10deg); opacity: 0.6; }
-            50% { transform: translateX(0px) translateY(-10px) rotate(5deg); opacity: 1; }
-            100% { transform: translateX(20px) translateY(5px) rotate(-10deg); opacity: 0.6; }
-        }
-
-        /* --- HIDDEN TICKET TEMPLATE --- */
-        #ticketTemplate {
-            display: none;
-            width: 600px;
-            background: #fff;
-            border: 1px solid #eee;
-            font-family: 'Poppins', sans-serif;
-        }
-        
-        .ticket-header {
-            background: linear-gradient(135deg, #ff4d88, #ff8fb1);
-            color: white;
-            padding: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .ticket-body { padding: 25px; display: flex; justify-content: space-between; }
-        .ticket-info label { display: block; font-size: 10px; color: #888; text-transform: uppercase; margin-bottom: 2px; }
-        .ticket-info p { margin: 0 0 15px 0; font-weight: bold; font-size: 16px; color: #333; }
-        
-        .barcode {
-            height: 40px;
-            background: repeating-linear-gradient(90deg, #333, #333 2px, #fff 2px, #fff 4px);
-            margin-top: 10px;
-            width: 100%;
-        }
+        /* --- TICKET DESIGN --- */
+        .ticket-header { background: #333; color: white; padding: 20px; display: flex; justify-content: space-between; align-items: center; }
+        .ticket-body { padding: 30px; background: #fff; color: #000; font-family: 'Courier New', Courier, monospace; }
+        .info-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        .info-table td { padding: 8px 0; vertical-align: top; }
+        .label { font-size: 10px; color: #666; text-transform: uppercase; display: block; margin-bottom: 2px; }
+        .val { font-size: 16px; font-weight: bold; color: #000; }
+        .highlight { color: #ff4d88; font-size: 20px; }
+        .p-table { width: 100%; border-top: 2px dashed #ccc; margin-top: 10px; }
+        .p-table th { text-align: left; font-size: 11px; color: #555; padding: 10px 0 5px 0; }
+        .p-table td { padding: 5px 0; font-size: 14px; font-weight: bold; border-bottom: 1px solid #eee; }
     </style>
 </head>
 <body>
@@ -113,7 +85,7 @@
         <h2>SkyBook ✈️</h2>
         <div style="display: flex; gap: 20px; align-items: center;">
             <a href="search.html">Book Flight</a>
-            <a href="index.html" style="color: #ff4d88; border: 1px solid #ff4d88; padding: 5px 15px; border-radius: 20px;">Log Out</a>
+            <a href="login.html" onclick="localStorage.clear()" style="color: #ff4d88; border: 1px solid #ff4d88; padding: 5px 15px; border-radius: 20px; text-decoration: none;">Log Out</a>
         </div>
     </div>
 
@@ -121,145 +93,127 @@
     <div class="cloud one"></div>
     <div class="cloud two"></div>
 
-    <div class="bookings-container">
-        <h1 style="text-align: center; color: #333; margin-bottom: 10px;">Your Trips</h1>
-        <p style="text-align: center; color: #777; margin-bottom: 40px;">Manage your past and upcoming flights</p>
+    <div class="container">
+        <h1 style="text-align: center; color: #333; margin-bottom: 10px;">My Bookings</h1>
+        <p style="text-align: center; color: #777; margin-bottom: 40px;" id="userDisplay">--</p>
 
         <div id="bookingsList">
-            <div class="loader-container">
-                <div class="flying-plane">✈️</div>
-                <p>Fetching your trips...</p>
-            </div>
+            <p style="text-align: center;">Loading your trips...</p>
         </div>
     </div>
 
-    <div id="ticketContainer" style="position: absolute; top: -9999px;">
-        <div id="ticketTemplate">
-            <div class="ticket-header">
-                <h3 style="margin:0;">SkyBook Air</h3>
-                <span style="font-size: 12px; background: rgba(255,255,255,0.2); padding: 5px 10px; border-radius: 10px;">BOARDING PASS</span>
-            </div>
-            <div class="ticket-body">
-                <div style="text-align: left; flex: 1;">
-                    <div class="ticket-info">
-                        <label>Passenger</label>
-                        <p id="pdfName">--</p>
-                    </div>
-                    <div class="ticket-info">
-                        <label>From</label>
-                        <p id="pdfFrom">--</p>
-                    </div>
-                    <div class="ticket-info">
-                        <label>Date</label>
-                        <p id="pdfDate">--</p>
-                    </div>
+    <div id="ticketModal">
+        <div style="position: relative; width: 700px;">
+            <span class="close-modal" onclick="closeModal()">×</span>
+            <div id="ticketContent">
+                <div class="ticket-header">
+                    <h2>SKYBOOK AIR</h2>
+                    <span>BOARDING PASS</span>
                 </div>
+                <div class="ticket-body">
+                    <table class="info-table">
+                        <tr>
+                            <td><span class="label">PNR</span><span class="val highlight" id="pdfPnr">--</span></td>
+                            <td><span class="label">Date</span><span class="val" id="pdfDate">--</span></td>
+                        </tr>
+                        <tr>
+                            <td><span class="label">Origin</span><span class="val" id="pdfOrigin">--</span></td>
+                            <td><span class="label">Destination</span><span class="val" id="pdfDest">--</span></td>
+                        </tr>
+                    </table>
+                    
+                    <div style="font-size: 12px; font-weight: bold; margin-top: 10px;">PASSENGER DETAILS</div>
+                    <table class="p-table">
+                        <thead><tr><th style="width:70%">NAME</th><th style="text-align:right">SEAT</th></tr></thead>
+                        <tbody id="pdfListBody"></tbody>
+                    </table>
 
-                <div style="text-align: right; flex: 1;">
-                    <div class="ticket-info">
-                        <label>Class</label>
-                        <p id="pdfClass">Economy</p>
-                    </div>
-                    <div class="ticket-info">
-                        <label>To</label>
-                        <p id="pdfTo">--</p>
-                    </div>
-                    <div class="ticket-info">
-                        <label>Seat</label>
-                        <p id="pdfSeat" style="color: #ff4d88; font-size: 22px;">--</p>
+                    <div style="margin-top: 20px; text-align: right; border-top: 2px solid #333; padding-top: 10px;">
+                        <span class="label">TOTAL PAID</span>
+                        <span class="val" id="pdfPrice">--</span>
                     </div>
                 </div>
             </div>
-            <div style="padding: 0 25px 25px 25px;">
-                <div class="ticket-info" style="text-align: center;">
-                    <label>PNR</label>
-                    <p id="pdfPnr" style="margin-bottom: 5px;">--</p>
-                </div>
-                <div class="barcode"></div>
+            <div style="text-align: center; margin-top: 20px;">
+                <button onclick="savePDF()" class="btn-ticket" style="padding: 15px 30px; font-size: 16px; width: 100%;">Confirm Download</button>
             </div>
         </div>
     </div>
 
     <script>
-        const API_BASE = "https://flight-backend-d2cb.onrender.com";
-        let allFlights = [];
+        // UPDATED TO LIVE SERVER
+        const API_BASE = "http://127.0.0.1:8000";
+
+        //const API_BASE = "https://flight-backend-d2cb.onrender.com";
+        const email = localStorage.getItem("userEmail") || localStorage.getItem("loggedUser");
 
         document.addEventListener("DOMContentLoaded", async () => {
+            if (!email) { 
+                alert("Please log in first.");
+                window.location.href = "login.html"; 
+                return;
+            }
+            
+            document.getElementById("userDisplay").innerText = `Account: ${email}`;
+            loadBookings();
+        });
+
+        async function loadBookings() {
             const listDiv = document.getElementById("bookingsList");
-
-            // Simulate small delay so you can see the loading animation (Optional)
-            // setTimeout(async () => { ... }, 500); 
-
             try {
-                // 1. Fetch Flights
-                const fRes = await fetch(`${API_BASE}/flights`);
-                allFlights = await fRes.json();
+                const res = await fetch(`${API_BASE}/my-bookings/${email}`);
+                
+                if(!res.ok) throw new Error("API Error");
+                
+                const bookings = await res.json();
 
-                // 2. Fetch Bookings
-                const bRes = await fetch(`${API_BASE}/bookings`);
-                const bookings = await bRes.json();
-
-                if (bookings.length === 0) {
+                if (!bookings || bookings.length === 0) {
                     listDiv.innerHTML = "<p style='text-align:center;'>No bookings found.</p>";
                     return;
                 }
 
                 listDiv.innerHTML = ""; 
 
-                bookings.reverse().forEach(booking => {
-                    const flight = allFlights.find(f => f.flight_id == booking.flight_id);
-                    const origin = flight ? flight.origin : "Unknown";
-                    const dest = flight ? flight.destination : "Unknown";
-                    const fNo = flight ? flight.flight_number : "FL000";
-                    
-                    // --- STATUS BADGE LOGIC ---
+                bookings.forEach(b => {
+                    const safeNames = encodeURIComponent(b.passenger_names);
+                    const safeSeats = encodeURIComponent(b.seats);
+
                     let badgeClass = "";
-                    if (booking.status === "CANCELLED") {
-                        badgeClass = "status-cancelled";
-                    } else if (booking.status === "PENDING_PAYMENT") {
-                        badgeClass = "status-pending"; // Orange
-                    }
-
-                    // Business Class Detection
-                    const rowNum = parseInt(booking.seat);
-                    const isBusiness = rowNum < 5;
-
+                    if (b.status === "CANCELLED") badgeClass = "status-cancelled";
+                    else if (b.status === "PENDING_PAYMENT") badgeClass = "status-pending";
+                    
                     const card = document.createElement("div");
                     card.className = "booking-card";
-                    if (booking.status === "CANCELLED") card.style.opacity = "0.6";
+                    if (b.status === "CANCELLED") card.style.opacity = "0.6";
 
                     card.innerHTML = `
                         <div style="flex: 1;">
-                            <span class="status-badge ${badgeClass}">
-                                ${booking.status.replace('_', ' ')}
-                            </span>
-                            <div style="font-size: 14px; color: #888;">PNR: ${booking.pnr}</div>
+                            <span class="status-badge ${badgeClass}">${b.status.replace("_", " ")}</span>
+                            <div style="font-size: 14px; color: #888;">PNR: <b>${b.pnr}</b></div>
                             
-                            <div style="margin-top: 10px; display: flex; align-items: center; gap: 15px;">
-                                <div style="font-weight: bold; font-size: 18px; color: #333;">${origin}</div>
-                                <div style="color: #ff4d88;">➝</div>
-                                <div style="font-weight: bold; font-size: 18px; color: #333;">${dest}</div>
+                            <div style="margin-top: 10px;">
+                                <span style="font-size: 18px; font-weight: bold; color: #333;">${b.origin} ➝ ${b.destination}</span>
                             </div>
-                            
                             <div style="margin-top: 5px; font-size: 13px; color: #666;">
-                                ${booking.travel_date} • ${booking.passenger} • <span style="font-weight:bold; color:${isBusiness ? '#b45309' : '#555'}">${booking.seat} (${isBusiness ? 'Business' : 'Eco'})</span>
+                                ${b.travel_date} • ${b.flight_number}
+                            </div>
+                            <div style="font-size: 13px; color: #666; margin-top: 2px;">
+                                ${b.passenger_count} Passenger(s) • Seats: ${b.seats}
                             </div>
                         </div>
 
-                        <div style="text-align: right;">
-                            <h3 style="margin: 0 0 10px 0; color: #333;">${fNo}</h3>
-                            <div style="font-weight: bold; font-size: 20px; color: #ff4d88; margin-bottom: 10px;">₹${booking.price}</div>
+                        <div class="action-area">
+                            <div style="font-weight: bold; font-size: 20px; color: #ff4d88; margin-bottom: 5px;">₹${b.total_price}</div>
                             
-                            ${booking.status !== "CANCELLED" ? `
-                                <button onclick="generatePDF('${booking.pnr}', '${booking.passenger}', '${origin}', '${dest}', '${booking.travel_date}', '${booking.seat}', '${booking.price}')" 
-                                    class="primary-btn" style="padding: 8px 15px; font-size: 12px; background: #333;">
-                                    ⬇ Download
+                            ${b.status === "CONFIRMED" ? `
+                                <button onclick="openTicketModal('${b.pnr}', '${b.origin}', '${b.destination}', '${b.travel_date}', '${safeNames}', '${safeSeats}', '${b.total_price}')" 
+                                    class="btn-ticket">
+                                    ⬇ Ticket
                                 </button>
-                                <button onclick="cancelBooking('${booking.pnr}')" 
-                                    style="padding: 8px 15px; font-size: 12px; border: 1px solid #ff4d88; background: white; color: #ff4d88; border-radius: 20px; cursor: pointer;">
-                                    Cancel
+                                <button onclick="cancelBooking('${b.pnr}')" class="btn-cancel">
+                                    Cancel Booking
                                 </button>
-                            ` : `<span style="color: red; font-size: 12px;">Cancelled</span>`}
+                            ` : ``}
                         </div>
                     `;
                     listDiv.appendChild(card);
@@ -267,31 +221,52 @@
 
             } catch (e) {
                 console.error(e);
-                listDiv.innerHTML = "<p style='color:red; text-align:center;'>Error loading bookings.</p>";
+                listDiv.innerHTML = "<p style='color:red; text-align:center;'>Unable to load bookings. Server might be sleeping.</p>";
             }
-        });
+        }
 
-        // 3. GENERATE PDF FUNCTION
-        function generatePDF(pnr, name, from, to, date, seat, price) {
-            document.getElementById("pdfName").innerText = name;
-            document.getElementById("pdfFrom").innerText = from;
-            document.getElementById("pdfTo").innerText = to;
-            document.getElementById("pdfDate").innerText = date;
-            document.getElementById("pdfSeat").innerText = seat;
+        async function cancelBooking(pnr) {
+            if (!confirm(`Are you sure you want to cancel PNR: ${pnr}?`)) return;
+
+            try {
+                const res = await fetch(`${API_BASE}/booking/${pnr}`, { method: 'DELETE' });
+                if (res.ok) {
+                    alert("Booking Cancelled.");
+                    loadBookings(); 
+                } else {
+                    alert("Failed to cancel.");
+                }
+            } catch (e) { alert("Server error."); }
+        }
+
+        // --- NEW MODAL LOGIC FOR PDF ---
+        function openTicketModal(pnr, from, to, date, namesEnc, seatsEnc, price) {
+            const names = decodeURIComponent(namesEnc).split(", ");
+            const seats = decodeURIComponent(seatsEnc).split(", ");
+
             document.getElementById("pdfPnr").innerText = pnr;
+            document.getElementById("pdfOrigin").innerText = from;
+            document.getElementById("pdfDest").innerText = to;
+            document.getElementById("pdfDate").innerText = date;
+            document.getElementById("pdfPrice").innerText = "₹" + price;
 
-            const rowNum = parseInt(seat);
-            const classEl = document.getElementById("pdfClass");
-            if (rowNum < 5) {
-                classEl.innerText = "Business";
-                classEl.style.color = "#b45309";
-            } else {
-                classEl.innerText = "Economy";
-                classEl.style.color = "#333";
+            let html = "";
+            for(let i=0; i<names.length; i++) {
+                html += `<tr><td>${names[i]}</td><td style="text-align:right; color:#ff4d88;">${seats[i]}</td></tr>`;
             }
+            document.getElementById("pdfListBody").innerHTML = html;
 
-            const element = document.getElementById("ticketTemplate");
-            element.style.display = "block";
+            // Show Modal (Flex to center)
+            document.getElementById("ticketModal").style.display = "flex";
+        }
+
+        function closeModal() {
+            document.getElementById("ticketModal").style.display = "none";
+        }
+
+        function savePDF() {
+            const element = document.getElementById("ticketContent");
+            const pnr = document.getElementById("pdfPnr").innerText;
 
             const opt = {
                 margin: 10,
@@ -302,16 +277,8 @@
             };
 
             html2pdf().set(opt).from(element).save().then(() => {
-                element.style.display = "none";
+                closeModal(); // Auto-close after download
             });
-        }
-
-        async function cancelBooking(pnr) {
-            if (!confirm("Are you sure you want to cancel this booking?")) return;
-            try {
-                await fetch(`${API_BASE}/booking/${pnr}`, { method: "DELETE" });
-                location.reload();
-            } catch (e) { alert("Error cancelling"); }
         }
     </script>
 </body>

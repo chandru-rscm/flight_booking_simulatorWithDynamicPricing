@@ -5,93 +5,93 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Welcome to SkyBook ✈️</title>
     <link rel="stylesheet" href="css/style.css">
-<style>
-        /* LANDING PAGE SPECIFIC STYLES */
-        body { overflow-x: hidden; }
-
-        /* 1. LAYOUT FIX: Use Padding instead of Height */
-        /* This forces the box to grow with content, preventing overlaps */
+    <style>
+        body { overflow-x: hidden; scroll-behavior: smooth; }
+        
+        /* --- HERO SECTION --- */
         .hero-section {
             width: 100%;
-            padding-top: 100px;    /* Big space at top */
-            padding-bottom: 100px; /* Big space at bottom */
+            padding: 100px 0;
             display: flex;
             align-items: center;
             justify-content: center;
             text-align: center;
             position: relative;
-            z-index: 10;
+            z-index: 2;
         }
-
-        /* 2. TEXT FIX: Added standard properties to stop warnings */
         .hero-content h1 {
-            font-size: 60px;
-            margin-bottom: 20px;
+            font-size: 60px; margin-bottom: 20px;
             background: linear-gradient(to right, #333, #ff4d88);
-            
-            /* The Standard Way */
-            background-clip: text;
             -webkit-background-clip: text;
-            
-            /* Text Color Fill */
             -webkit-text-fill-color: transparent;
-            color: transparent;
-            
             font-weight: 800;
         }
-
-        .hero-content p {
-            font-size: 20px; color: #666; margin-bottom: 40px;
-            max-width: 600px; margin-left: auto; margin-right: auto;
-        }
-
-        .cta-buttons { display: flex; gap: 20px; justify-content: center; }
-
+        
+        /* --- BUTTONS --- */
+        .cta-buttons { display: flex; gap: 20px; justify-content: center; margin-top: 30px;}
         .btn-large {
             padding: 15px 40px; border-radius: 30px; font-size: 18px; font-weight: bold;
-            text-decoration: none; transition: transform 0.3s, box-shadow 0.3s;
-            cursor: pointer; display: inline-block;
+            text-decoration: none; transition: transform 0.3s; cursor: pointer;
         }
-        .btn-primary { background: #ff4d88; color: white; box-shadow: 0 10px 25px rgba(255, 77, 136, 0.4); border: none; }
-        .btn-secondary { background: white; color: #333; border: 1px solid #ddd; }
-        .btn-large:hover { transform: translateY(-5px); }
+        .btn-primary { background: #ff4d88; color: white; border: none; }
+        .btn-outline { background: white; color: #ff4d88; border: 2px solid #ff4d88; }
+        .btn-secondary { background: #eee; color: #333; border: 1px solid #ddd; }
+        .btn-large:hover { transform: translateY(-3px); }
 
-        /* 3. CARD FIX: Simple margins, no negative numbers */
-        .features-container {
-            max-width: 1000px;
-            margin: 0 auto 50px auto; /* Clean margins */
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 30px;
-            position: relative;
-            z-index: 20;
-            padding: 0 20px;
+        /* --- NAVBAR FIXES --- */
+        .navbar {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 20px 40px; background: rgba(255,255,255,0.9);
+            backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 100;
         }
-
-        .feature-card {
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(10px);
-            padding: 30px;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-            text-align: center;
-            border-bottom: 4px solid #ff4d88;
-            transition: transform 0.3s;
+        .nav-links {
+            display: flex; gap: 20px; align-items: center;
         }
-        .feature-card:hover { transform: translateY(-10px); }
-        .feature-icon { font-size: 40px; margin-bottom: 15px; display: block; }
-
+        .nav-links a {
+            text-decoration: none; color: #555; font-weight: 600; font-size: 15px; transition: 0.2s;
+        }
+        .nav-links a:hover { color: #ff4d88; }
+        
         .admin-link {
-            position: fixed; bottom: 20px; right: 20px;
-            font-size: 12px; color: #ccc; text-decoration: none;
+            border: 1px solid #333; padding: 8px 15px; border-radius: 20px; color: #333 !important;
         }
-        .admin-link:hover { color: #333; }
+        .admin-link:hover { background: #333; color: white !important; }
+
+        /* --- FEATURES SECTION --- */
+        .features-container {
+            max-width: 1100px; margin: 50px auto; 
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
+            gap: 30px; padding: 20px;
+        }
+        .feature-card {
+            text-align: center; padding: 40px 30px; 
+            background: rgba(255,255,255,0.9); 
+            border-radius: 20px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease;
+            border-bottom: 4px solid transparent;
+        }
+        .feature-card:hover {
+            transform: translateY(-10px);
+            border-bottom-color: #ff4d88;
+        }
+        .feature-card h3 { margin: 15px 0 10px 0; font-size: 22px; color: #333; }
+        .feature-card p { color: #666; font-size: 15px; line-height: 1.6; }
+        .f-icon { font-size: 50px; margin-bottom: 10px; display: inline-block; }
+
     </style>
 </head>
 <body>
 
     <div class="navbar">
         <h2>SkyBook ✈️</h2>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="#features">Features</a>
+            <a href="admin.html" class="admin-link">Admin Panel</a> <span style="color: #ddd;">|</span>
+            <a href="login.html?mode=login">Login</a>
+            <a href="login.html?mode=signup" style="color: #ff4d88;">Sign Up</a>
+        </div>
     </div>
 
     <div class="plane-container"><div class="plane-icon">✈️</div></div>
@@ -101,40 +101,37 @@
     <div class="hero-section">
         <div class="hero-content">
             <h1>Fly Anywhere.</h1>
-            <p>Experience real-time dynamic pricing with our advanced flight booking simulator.</p>
+            <p style="font-size: 20px; color: #666;">Experience real-time dynamic pricing with our advanced simulator.</p>
             
             <div class="cta-buttons">
-                <a href="login.html" class="btn-large btn-primary">Login</a>
+                <a href="login.html?mode=login" class="btn-large btn-primary">Login</a>
+                <a href="login.html?mode=signup" class="btn-large btn-outline">Sign Up</a>
                 <a href="search.html" class="btn-large btn-secondary">Guest Mode</a>
             </div>
-            
-            <p style="margin-top: 30px; font-size: 12px; color: #999;">
-                Infosys Internship Project
-            </p>
         </div>
     </div>
 
-    <div style="height: 50px; width: 100%; clear: both;"></div> 
-
-    <div class="features-container">
+    <div id="features" class="features-container">
+        
         <div class="feature-card">
-            <span class="feature-icon">💎</span>
+            <span class="f-icon">💎</span>
             <h3>Dynamic Pricing</h3>
-            <p style="color:#777; font-size:14px;">Smart algorithms that adjust fares based on real-time demand.</p>
+            <p>Our intelligent pricing engine adjusts fares in real-time based on demand, simulating a real-world airline booking experience.</p>
         </div>
-        <div class="feature-card">
-            <span class="feature-icon">🛡️</span>
-            <h3>Secure Booking</h3>
-            <p style="color:#777; font-size:14px;">Enterprise-grade security for your personal data.</p>
-        </div>
-        <div class="feature-card">
-            <span class="feature-icon">⚡</span>
-            <h3>Instant Boarding Pass</h3>
-            <p style="color:#777; font-size:14px;">Get your PDF ticket instantly after payment.</p>
-        </div>
-    </div>
 
-    <a href="admin.html" class="admin-link">Admin Login 🔐</a>
+        <div class="feature-card">
+            <span class="f-icon">🛡️</span>
+            <h3>Secure Booking</h3>
+            <p>Your personal data and payments are protected with industry-standard encryption, ensuring a safe and reliable journey.</p>
+        </div>
+
+        <div class="feature-card">
+            <span class="f-icon">⚡</span>
+            <h3>Instant Tickets</h3>
+            <p>Book your flight and receive a downloadable PDF boarding pass instantly via email. No waiting, no hassle.</p>
+        </div>
+
+    </div>
 
 </body>
 </html>

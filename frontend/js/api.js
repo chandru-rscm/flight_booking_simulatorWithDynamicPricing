@@ -1,16 +1,20 @@
-// OLD (Localhost)
-//const API_BASE = "http://127.0.0.1:8000";
+// OPTION 1: Localhost (Use this if your backend is running in a terminal on your PC)
+const API_BASE = "http://127.0.0.1:8000"; 
 
-// NEW (Live Render URL) - Use YOUR specific link
-const API_BASE = "https://flight-backend-d2cb.onrender.com";
+// OPTION 2: Live Server (Use this if your backend is deployed online)
+// const API_BASE = "https://skybook-app.onrender.com"; 
 
 async function apiGet(path) {
     try {
-        const res = await fetch(API_BASE_URL + path);
-        if (!res.ok) throw new Error("API error");
+        // Ensure we don't end up with double slashes (e.g., //admin)
+        const cleanPath = path.startsWith('/') ? path : `/${path}`;
+        
+        const res = await fetch(`${API_BASE}${cleanPath}`);
+        if (!res.ok) throw new Error(`API error: ${res.status}`);
         return await res.json();
     } catch (e) {
-        alert("Backend not reachable");
+        console.error("API Call Failed:", e);
+        // We throw the error so the calling function handles the alert
         throw e;
     }
 }
