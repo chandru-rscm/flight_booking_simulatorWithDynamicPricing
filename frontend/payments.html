@@ -237,114 +237,130 @@
     </div>
 
     <script>
-        //const API = "http://127.0.0.1:8000";
-        
-        const API_BASE = "https://flight-backend-d2cb.onrender.com";
-        const bookingId = localStorage.getItem("temp_booking_id");
-        let details = {};
+    // ✅ CORRECT RENDER URL
+    const API = "https://flight-backend-d2cb.onrender.com";
+    
+    const bookingId = localStorage.getItem("temp_booking_id");
+    let details = {};
 
-        // 1. Fetch Booking Details
-        document.addEventListener("DOMContentLoaded", async () => {
-            if(!bookingId) { alert("No booking found"); window.location.href="search.html"; return; }
+    // 1. Fetch Booking Details on Load
+    document.addEventListener("DOMContentLoaded", async () => {
+        // Debug Check
+        console.log("Looking for Booking ID:", bookingId);
 
-            try {
-                const res = await fetch(`${API}/booking/id/${bookingId}`);
-                if(!res.ok) throw new Error("API Error");
-                
-                details = await res.json();
-                
-                // Update Summary UI
-                document.getElementById("sumFlight").innerText = details.flight_number;
-                const route = details.origin.split('(')[0] + " ➝ " + details.destination.split('(')[0];
-                document.getElementById("sumRoute").innerText = route;
-                document.getElementById("sumPassCount").innerText = details.passenger_count;
-                document.getElementById("sumSeats").innerText = details.seats;
-                document.getElementById("sumDate").innerText = details.travel_date;
-                document.getElementById("sumAmount").innerText = "₹" + details.amount;
-                document.getElementById("payBtn").innerText = `Pay ₹${details.amount}`;
-
-            } catch(e) { alert("Error loading booking details"); }
-        });
-
-        // 2. Tab Switcher
-        function switchMethod(m) {
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById('form-card').classList.add('hidden');
-            document.getElementById('form-upi').classList.add('hidden');
-            document.getElementById('form-net').classList.add('hidden');
-            
-            event.target.classList.add('active');
-            document.getElementById(`form-${m}`).classList.remove('hidden');
+        if(!bookingId) { 
+            alert("No booking found in session. Please start a new search."); 
+            window.location.href = "search.html"; 
+            return; 
         }
 
-        // 3. Card Formatting
-        document.getElementById('cardNum').addEventListener('input', function (e) {
+        try {
+            console.log(`Fetching details from: ${API}/booking/id/${bookingId}`);
+            
+            const res = await fetch(`${API}/booking/id/${bookingId}`);
+            
+            if(!res.ok) {
+                const errText = await res.text();
+                throw new Error(`API Error (${res.status}): ${errText}`);
+            }
+            
+            details = await res.json();
+            
+            // Populate Summary UI
+            document.getElementById("sumFlight").innerText = details.flight_number;
+            const route = details.origin.split('(')[0] + " ➝ " + details.destination.split('(')[0];
+            document.getElementById("sumRoute").innerText = route;
+            document.getElementById("sumPassCount").innerText = details.passenger_count;
+            document.getElementById("sumSeats").innerText = details.seats;
+            document.getElementById("sumDate").innerText = details.travel_date;
+            document.getElementById("sumAmount").innerText = "₹" + details.amount;
+            document.getElementById("payBtn").innerText = `Pay ₹${details.amount}`;
+
+        } catch(e) { 
+            console.error(e);
+            alert("Error loading booking details: " + e.message); 
+        }
+    });
+
+    // 2. Tab Switcher
+    function switchMethod(m) {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById('form-card').classList.add('hidden');
+        document.getElementById('form-upi').classList.add('hidden');
+        document.getElementById('form-net').classList.add('hidden');
+        
+        event.target.classList.add('active');
+        document.getElementById(`form-${m}`).classList.remove('hidden');
+    }
+
+    // 3. Simple Card Formatting
+    const cardInput = document.getElementById('cardNum');
+    if(cardInput){
+        cardInput.addEventListener('input', function (e) {
             e.target.value = e.target.value.replace(/[^\d]/g, '').replace(/(.{4})/g, '$1 ').trim();
         });
+    }
 
-        // 4. Process Payment
-        async function processPayment() {
-            const btn = document.getElementById("payBtn");
-            btn.innerText = "Processing Transaction..."; 
-            btn.disabled = true;
-            btn.style.opacity = "0.7";
+    // 4. Process Payment
+    async function processPayment() {
+        const btn = document.getElementById("payBtn");
+        btn.innerText = "Processing Transaction..."; 
+        btn.disabled = true;
+        btn.style.opacity = "0.7";
 
-            try {
-                const res = await fetch(`${API}/booking/pay/${bookingId}`, { method: "POST" });
-                const data = await res.json();
+        try {
+            const res = await fetch(`${API}/booking/pay/${bookingId}`, { method: "POST" });
+            const data = await res.json();
 
-                if(data.status === "SUCCESS") {
-                    // Populate Ticket
-                    document.getElementById("tPnr").innerText = data.pnr;
-                    document.getElementById("tDate").innerText = details.travel_date;
-                    document.getElementById("tTime").innerText = details.departure_time;
-                    document.getElementById("tOrigin").innerText = details.origin;
-                    document.getElementById("tDest").innerText = details.destination;
-                    document.getElementById("tPrice").innerText = "₹" + details.amount;
+            if(data.status === "SUCCESS") {
+                // Populate Ticket Data
+                document.getElementById("tPnr").innerText = data.pnr;
+                document.getElementById("tDate").innerText = details.travel_date;
+                document.getElementById("tTime").innerText = details.departure_time;
+                document.getElementById("tOrigin").innerText = details.origin;
+                document.getElementById("tDest").innerText = details.destination;
+                document.getElementById("tPrice").innerText = "₹" + details.amount;
 
-                    const names = details.passengers.split(", ");
-                    const seats = details.seats.split(", ");
-                    let html = "";
-                    for(let i=0; i<names.length; i++) {
-                        html += `<tr><td>${names[i]}</td><td style="text-align: right; color: #ff4d88;">${seats[i]}</td></tr>`;
-                    }
-                    document.getElementById("pListBody").innerHTML = html;
-
-                    // Switch UI
-                    document.getElementById("paymentSection").classList.add("hidden");
-                    document.getElementById("successSection").classList.remove("hidden");
-                    
-                    // Show Ticket
-                    document.getElementById("ticketContainer").style.display = "block";
-                } else {
-                    alert("Payment Declined. Please try again."); 
-                    btn.disabled = false;
-                    btn.innerText = `Pay ₹${details.amount}`;
-                    btn.style.opacity = "1";
+                const names = details.passengers.split(", ");
+                const seats = details.seats.split(", ");
+                let html = "";
+                for(let i=0; i<names.length; i++) {
+                    html += `<tr><td>${names[i]}</td><td style="text-align: right; color: #ff4d88;">${seats[i]}</td></tr>`;
                 }
-            } catch(e) { 
-                alert("Server Error during payment"); 
-                btn.disabled = false;
-                btn.innerText = `Pay ₹${details.amount}`;
-                btn.style.opacity = "1";
+                document.getElementById("pListBody").innerHTML = html;
+
+                // Switch UI Screens
+                document.getElementById("paymentSection").classList.add("hidden");
+                document.getElementById("successSection").classList.remove("hidden");
+                
+                // Show Ticket for PDF
+                document.getElementById("ticketContainer").style.display = "block";
+            } else {
+                throw new Error("Payment status not SUCCESS");
             }
+        } catch(e) { 
+            alert("Payment Failed: " + e.message); 
+            btn.disabled = false;
+            btn.innerText = `Pay ₹${details.amount}`;
+            btn.style.opacity = "1";
         }
+    }
 
-        // 5. PDF Download (Existing & Working Logic)
-        function downloadTicket() {
-            const element = document.getElementById("ticketContainer");
-            window.scrollTo(0, 0); // Ensure full visibility for capture
+    // 5. PDF Download
+    function downloadTicket() {
+        const element = document.getElementById("ticketContainer");
+        window.scrollTo(0, 0); 
 
-            const opt = {
-                margin: 10,
-                filename: `SkyBook_Ticket_${document.getElementById("tPnr").innerText}.pdf`,
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
+        const opt = {
+            margin: 10,
+            filename: `SkyBook_Ticket_${document.getElementById("tPnr").innerText}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
 
-            html2pdf().set(opt).from(element).save();
-        }
-    </script>
+        html2pdf().set(opt).from(element).save();
+    }
+</script>
 </body>
 </html>
